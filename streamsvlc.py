@@ -130,7 +130,7 @@ class Botao(ButtonBehavior, Label):
                       pos=(self.x + self.height / 2.0, self.y))
 
 
-class Layout2(App):
+class Layout(App):
     title = 'Streams no VLC'
 
     def build(self):
@@ -138,4 +138,4 @@ class Layout2(App):
 
 
 if __name__ == '__main__':
-    Layout2().run()
+    Layout().run()
