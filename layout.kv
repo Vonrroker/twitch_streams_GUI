@@ -12,6 +12,7 @@
         size_hint_y:None
         height:35
         Botao:
+            id: btn_atualizar
             text:'Atualizar'
             cor: 40/255, 0, 100/255,1
             cor2: 182/255, 150/255, 187/255,1
@@ -25,6 +26,16 @@
             size_hint_x: None
             width: 60
             on_release: app.root.ids.scr.scroll_to(app.root.ids.img1.children[-1] if app.root.ids.scr.vbar[0]<0.5 else app.root.ids.img1.children[0])
+        Label:
+            text:'Auto:'
+            font_size: 20
+            size_hint_x:None
+            size: self.texture_size
+        CheckBox:
+            id: chkauto
+            size_hint_x: None
+            width: 30
+            active: True
 
     ScrollView:
         id: scr
@@ -46,23 +57,27 @@
                 height:self.minimum_height
 
 
-<BoxLayout1>
+<BoxImg>
     size_hint_y:None
     height:380
     padding: 2,2,2,2
     BtnImagem:
         id: asimg
         allow_stretch:True
-        on_release: app.root.play(self.children[0].text.split('-')[0])
+        on_release: app.root.play(self.children[0].text.split('-')[0].strip())
         Label:
             id:lbl
             markup:True
             height:30
+            pos: self.parent.center_x-self.width/2, self.parent.y + self.parent.height - self.height
             font_size:20
             bold:True
+            text_size: self.parent.width * 5/6, None
+            size: self.texture_size
+            halign: 'center'
+            on_ref_press: root.info()
             outline_color: 97/255, 22/255, 120/255
             outline_width: 2
-            center: self.parent.center_x, self.parent.center_y + self.parent.height/2 - self.height/2
 
 <UpDown@ButtonBehavior+Label>:
     canvas.before:
