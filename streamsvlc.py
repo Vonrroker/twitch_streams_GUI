@@ -47,18 +47,10 @@ class BoxMain(BoxLayout):
         Window.bind(on_key_down=self.move)
 
     def move(self, *args):
-        print('down')
-        pprint(args)
         if args[1] == 274 and self.ids.scr.scroll_y > 0:
             self.ids.scr.scroll_y = self.ids.scr.scroll_y - 0.05
         elif args[1] == 273 and self.ids.scr.scroll_y < 1:
             self.ids.scr.scroll_y = self.ids.scr.scroll_y + 0.05
-
-    def lblpos(self):
-        for bb in self.ids['img1'].children:
-            pprint(bb.children[0].children[0].pos)
-            pprint(bb.children[0].children[0].size)
-            self.hand_area.append([bb.children[0].children[0].size, bb.children[0].children[0].pos])
 
         # down = 274
         # up = 273
