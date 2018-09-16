@@ -3,6 +3,9 @@ from pprint import pprint
 from kivy.config import Config
 
 Config.set('graphics', 'window_state', 'maximized')
+from kivy.uix.button import Button
+from kivy.uix.spinner import Spinner
+
 from kivy.uix.label import Label
 from kivy.app import App
 from kivy.uix.progressbar import ProgressBar
@@ -40,8 +43,6 @@ class BoxMain(BoxLayout):
         self.hand_area = [[self.ids.btn_atualizar.size, self.ids.btn_atualizar.pos],
                           [self.ids.dwup.size, self.ids.dwup.pos],
                           [self.ids.chkauto.size, self.ids.chkauto.pos]]
-        # [self.ids.img1.size, self.ids.img1.pos],
-        # [self.ids.img2.size, self.ids.img2.pos]]
         self.atualizar()
         Window.bind(mouse_pos=self.set_cursor)
         Window.bind(on_key_down=self.move)
@@ -86,19 +87,36 @@ class BoxMain(BoxLayout):
         if len(self.ids['img1'].children) > len(self.ids['img2'].children):
             self.ids.img2.add_widget(BoxLayout(size_hint_y=None, height=380, padding=[2, 2, 2, 2]))
 
-    def play(self, go: str):
-        # pprint(self.streams_on)
-
+    def play(self, go: str, qlt='best'):
         system('cls')
         self.vlcs = check_output('tasklist /nh /fi "IMAGENAME eq vlc.exe" /fo csv').count(b'vlc.exe')
-        self.popup.open()
-        tmp = f"streamlink http://twitch.tv/{go} best"
-        if not self.ids.chkauto.active:
+
+        if not self.ids.chkauto.active and qlt == 'best':
+            print('entrou')
+            print(qlt)
             resol = (streams(f"https://www.twitch.tv/{go}")).keys()
             print(list(resol))
-
-        print(tmp)
-        Popen(tmp, close_fds=True)
+            box_popup = BoxLayout(orientation='vertical')
+            spn = Spinner(text='Escolha a qualidade', values=list(resol)[:-2], size_hint_y=None, height=30)
+            box_popup.add_widget(spn)
+            box_popup.add_widget(Button(text='ok', size_hint_y=None, height=30, on_release=lambda a: self.play(go,spn.text)))
+            self.popup_resol = Popup(title='Qualidade',
+                                size_hint=(None, None),
+                                size=(350, 600),
+                                content=box_popup,
+                                separator_height=0,
+                                title_align='center',
+                                auto_dismiss=True)
+            self.popup_resol.open()
+        else:
+            try:
+                self.popup_resol.dismiss()
+            except Exception:
+                pass
+            self.popup.open()
+            tmp = f"streamlink http://twitch.tv/{go} {qlt}"
+            print(tmp)
+            Popen(tmp, close_fds=True)
 
     def next(self, dt):
         if check_output('tasklist /nh /fi "IMAGENAME eq vlc.exe" /fo csv').count(b'vlc.exe') != self.vlcs:
@@ -110,6 +128,15 @@ class BoxMain(BoxLayout):
 
     def puopen(self, instance):
         Clock.schedule_interval(self.next, .06)
+
+
+class BtnPopouResol(Button):
+    def __init__(self, text, **kwargs):
+        super().__init__(**kwargs)
+        self.text = text
+
+    def on_release(self):
+        ...
 
 
 class BtnImagem(ButtonBehavior, AsyncImage):
@@ -128,7 +155,7 @@ class BoxImg(BoxLayout):
         super().__init__(**kwargs)
         self.t = text
         self.ids.asimg.source = text[4]
-        self.ids.lbl.text = "{} - {} - {:,}[ref={}][color=0000ff]...[/color][/ref]".format(text[0].capitalize(),
+        self.ids.lbl.text = "{} - {} - {:,}[ref={}][color=ff0000]...[/color][/ref]".format(text[0].capitalize(),
                                                                                            text[1],
                                                                                            text[2],
                                                                                            text[0]).replace(',', '.')
