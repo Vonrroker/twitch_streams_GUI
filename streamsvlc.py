@@ -40,8 +40,28 @@ class BoxMain(BoxLayout):
         self.hand_area = [[self.ids.btn_atualizar.size, self.ids.btn_atualizar.pos],
                           [self.ids.dwup.size, self.ids.dwup.pos],
                           [self.ids.chkauto.size, self.ids.chkauto.pos]]
+        # [self.ids.img1.size, self.ids.img1.pos],
+        # [self.ids.img2.size, self.ids.img2.pos]]
         self.atualizar()
         Window.bind(mouse_pos=self.set_cursor)
+        Window.bind(on_key_down=self.move)
+
+    def move(self, *args):
+        print('down')
+        pprint(args)
+        if args[1] == 274 and self.ids.scr.scroll_y > 0:
+            self.ids.scr.scroll_y = self.ids.scr.scroll_y - 0.05
+        elif args[1] == 273 and self.ids.scr.scroll_y < 1:
+            self.ids.scr.scroll_y = self.ids.scr.scroll_y + 0.05
+
+    def lblpos(self):
+        for bb in self.ids['img1'].children:
+            pprint(bb.children[0].children[0].pos)
+            pprint(bb.children[0].children[0].size)
+            self.hand_area.append([bb.children[0].children[0].size, bb.children[0].children[0].pos])
+
+        # down = 274
+        # up = 273
 
     def set_cursor(self, *args):
         pos_x = args[1][0]
