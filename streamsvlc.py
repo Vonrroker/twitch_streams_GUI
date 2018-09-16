@@ -106,7 +106,6 @@ class BoxMain(BoxLayout):
                                      separator_height=0,
                                      title_align='center',
                                      auto_dismiss=False)
-            self.popup_resol.bind(on_open=self.popup.dismiss)
             self.popup_resol.open()
         else:
             try:
@@ -211,3 +210,4 @@ class Layout(App):
 
 if __name__ == '__main__':
     Layout().run()
+
