@@ -93,20 +93,20 @@ class BoxMain(BoxLayout):
 
         if not self.ids.chkauto.active and qlt == 'best':
             print('entrou')
-            print(qlt)
             resol = (streams(f"https://www.twitch.tv/{go}")).keys()
-            print(list(resol))
             box_popup = BoxLayout(orientation='vertical')
-            spn = Spinner(text='Escolha a qualidade', values=list(resol)[:-2], size_hint_y=None, height=30)
+            spn = Spinner(text='160p', values=list(resol)[:-2], size_hint_y=None, height=30)
             box_popup.add_widget(spn)
-            box_popup.add_widget(Button(text='ok', size_hint_y=None, height=30, on_release=lambda a: self.play(go,spn.text)))
+            box_popup.add_widget(
+                Button(text='ok', size_hint_y=None, height=30, on_release=lambda a: self.play(go, spn.text)))
             self.popup_resol = Popup(title='Qualidade',
-                                size_hint=(None, None),
-                                size=(350, 600),
-                                content=box_popup,
-                                separator_height=0,
-                                title_align='center',
-                                auto_dismiss=True)
+                                     size_hint=(None, None),
+                                     size=(350, 600),
+                                     content=box_popup,
+                                     separator_height=0,
+                                     title_align='center',
+                                     auto_dismiss=False)
+            self.popup_resol.bind(on_open=self.popup.dismiss)
             self.popup_resol.open()
         else:
             try:
