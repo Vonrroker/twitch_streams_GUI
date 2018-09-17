@@ -6,6 +6,7 @@ Config.set('graphics', 'window_state', 'maximized')
 from kivy.uix.button import Button
 from kivy.uix.spinner import Spinner
 
+from kivy.graphics.vertex_instructions import Line
 from kivy.uix.label import Label
 from kivy.app import App
 from kivy.uix.progressbar import ProgressBar
@@ -85,7 +86,7 @@ class BoxMain(BoxLayout):
                 self.ids.img2.add_widget(BoxImg(text=stream))
 
         if len(self.ids['img1'].children) > len(self.ids['img2'].children):
-            self.ids.img2.add_widget(BoxLayout(size_hint_y=None, height=380, padding=[2, 2, 2, 2]))
+            self.ids.img2.add_widget(BoxLayout(size_hint_y=None, height=380))
 
     def play(self, go: str, qlt='best'):
         system('cls')
@@ -193,12 +194,16 @@ class Botao(ButtonBehavior, Label):
         self.canvas.before.clear()
         with self.canvas.before:
             Color(rgba=self.cor)
-            Ellipse(size=(self.height, self.height),
-                    pos=self.pos)
-            Ellipse(size=(self.height, self.height),
-                    pos=(self.x + self.width - self.height, self.y))
-            Rectangle(size=(self.width - self.height, self.height),
-                      pos=(self.x + self.height / 2.0, self.y))
+            Line(rounded_rectangle=(self.x, self.y, self.width, self.height, 10, 100), width=1.4)
+            # Line(points=(self.x, self.y, self.x, self.y + self.height,
+            #              self.x + self.width, self.y+self.height, self.x + self.width, self.y, self.x, self.y),
+            #      cap='none', joint='round', close=True, width=2)
+            # Ellipse(size=(self.height, self.height),
+            #         pos=self.pos)
+            # Ellipse(size=(self.height, self.height),
+            #         pos=(self.x + self.width - self.height, self.y))
+            # Rectangle(size=(self.width - self.height, self.height),
+            #           pos=(self.x + self.height / 2.0, self.y))
 
 
 class Layout(App):
