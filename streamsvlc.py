@@ -1,4 +1,5 @@
 from pprint import pprint
+from threading import Thread
 
 from kivy.config import Config
 
@@ -17,7 +18,7 @@ from kivy.uix.boxlayout import BoxLayout
 from twitch import TwitchClient
 from os import system
 from subprocess import Popen, check_output
-from kivy.clock import Clock
+from kivy.clock import Clock, mainthread
 from kivy.properties import ListProperty
 from kivy.graphics import Color, Ellipse, Rectangle
 from streamlink import streams
@@ -25,7 +26,7 @@ from kivy.core.window import Window
 
 token = open(r'C:\Users\Dayham\PycharmProjects\TwitchStreams\token.txt', 'r')
 client = TwitchClient(oauth_token=token.readlines()[0])
-
+pprint(client.streams.get_followed())
 
 class BoxMain(BoxLayout):
     def __init__(self, **kwargs):
@@ -99,7 +100,7 @@ class BoxMain(BoxLayout):
             spn = Spinner(text='160p', values=list(resol)[:-2], size_hint_y=None, height=30)
             box_popup.add_widget(spn)
             box_popup.add_widget(
-                Button(text='ok', size_hint_y=None, height=30, on_release=lambda a: self.play(go, spn.text)))
+                Button(text='Play', size_hint_y=None, height=30, on_release=lambda a: self.play(go, spn.text)))
             self.popup_resol = Popup(title='Qualidade',
                                      size_hint=(None, None),
                                      size=(350, 600),
@@ -107,13 +108,14 @@ class BoxMain(BoxLayout):
                                      separator_height=0,
                                      title_align='center',
                                      auto_dismiss=False)
+            self.popup_resol.bind(on_open=self.popup.dismiss)
             self.popup_resol.open()
         else:
             try:
                 self.popup_resol.dismiss()
             except Exception:
                 pass
-            self.popup.open()
+
             tmp = f"streamlink http://twitch.tv/{go} {qlt}"
             print(tmp)
             Popen(tmp, close_fds=True)
