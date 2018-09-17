@@ -130,15 +130,6 @@ class BoxMain(BoxLayout):
         Clock.schedule_interval(self.next, .06)
 
 
-class BtnPopouResol(Button):
-    def __init__(self, text, **kwargs):
-        super().__init__(**kwargs)
-        self.text = text
-
-    def on_release(self):
-        ...
-
-
 class BtnImagem(ButtonBehavior, AsyncImage):
     def __init__(self, **kwargs):
         super(BtnImagem, self).__init__(**kwargs)
