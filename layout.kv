@@ -5,11 +5,6 @@
     padding: 5, 5, 5, 5
     canvas:
         Color:
-            rgba:.01, .01, .1, 1
-        Rectangle:
-            size:self.size
-            pos:self.pos
-        Color:
             rgba: cor_borda
         Line:
             rounded_rectangle: self.x, self.y, self.width, self.height, 10, 100
@@ -70,7 +65,6 @@
 <BoxImg>
     size_hint_y:None
     height:380
-    # padding: 2,2,2,2
     BtnImagem:
         id: asimg
         canvas:
@@ -119,3 +113,15 @@
         Line:
             rounded_rectangle: self.x, self.y, self.width, self.height, 10, 100
             width:1.4
+
+<PopUpProgress>
+    title : 'Abrindo VLC'
+    size_hint : (None, None)
+    size : (600, 70)
+    separator_height : 0
+    title_align : 'center'
+    auto_dismiss : False
+    ProgressBar:
+        id:pgb
+        max:50
+        value:1
