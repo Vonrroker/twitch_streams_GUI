@@ -6,7 +6,6 @@
     canvas:
         Color:
             rgba:.01, .01, .1, 1
-            #97/255, 22/255, 120/255,1
         Rectangle:
             size:self.size
             pos:self.pos
@@ -24,8 +23,6 @@
         Botao:
             id: btn_atualizar
             text:'Atualizar'
-            cor: 1, 1, 1, 1
-            cor2: 182/255, 150/255, 187/255,1
             color: 1, 1, 1, 1
             outline_color: 102/255, 0, 204/255
             outline_width: 1
@@ -114,3 +111,11 @@
         Rectangle:
             size: self.width/6, self.height/2
             pos: self.x+self.width*2/3, self.y+self.height/2
+
+<Botao@ButtonBehavior+Label>
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, .9
+        Line:
+            rounded_rectangle: self.x, self.y, self.width, self.height, 10, 100
+            width:1.4

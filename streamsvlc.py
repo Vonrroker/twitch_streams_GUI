@@ -1,32 +1,27 @@
-from pprint import pprint
-from threading import Thread
-
 from kivy.config import Config
 
 Config.set('graphics', 'window_state', 'maximized')
+from kivy.network.urlrequest import UrlRequest
 from kivy.uix.button import Button
 from kivy.uix.spinner import Spinner
-
-from kivy.graphics.vertex_instructions import Line
-from kivy.uix.label import Label
 from kivy.app import App
 from kivy.uix.progressbar import ProgressBar
 from kivy.uix.popup import Popup
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.image import AsyncImage
 from kivy.uix.boxlayout import BoxLayout
-from twitch import TwitchClient
 from os import system
 from subprocess import Popen, check_output
-from kivy.clock import Clock, mainthread
-from kivy.properties import ListProperty
-from kivy.graphics import Color, Ellipse, Rectangle
-from streamlink import streams
+from kivy.clock import Clock
 from kivy.core.window import Window
+from credencial import credencial
+from pprint import pprint
 
-token = open(r'C:\Users\Dayham\PycharmProjects\TwitchStreams\token.txt', 'r')
-client = TwitchClient(oauth_token=token.readlines()[0])
-pprint(client.streams.get_followed())
+headers = {'Accept': 'application/vnd.twitchtv.v5+json',
+           'Client-ID': credencial['client_id'],
+           'Authorization': f'OAuth {credencial["oauth_token"]}'}
+headers2 = {'Accept': 'application/vnd.twitchtv.v5+json',
+           'Client-ID': credencial['client_id']}
 
 class BoxMain(BoxLayout):
     def __init__(self, **kwargs):
@@ -74,9 +69,11 @@ class BoxMain(BoxLayout):
     Carrega na tela a imagem preview, Nome, nº de viewers e jogo de todos as streams ao vivo
     que você segue.
         """
+        on_streans = UrlRequest(url='https://api.twitch.tv/kraken/streams/followed', req_headers=headers)
+        on_streans.wait()
         self.streams_on = [
             [x['channel']['name'], x['game'], x['viewers'], x['channel']['status'], x['preview']['large']]
-            for x in client.streams.get_followed()
+            for x in on_streans.result['streams']
         ]
         self.ids.img1.clear_widgets()
         self.ids.img2.clear_widgets()
@@ -92,15 +89,16 @@ class BoxMain(BoxLayout):
     def play(self, go: str, qlt='best'):
         system('cls')
         self.vlcs = check_output('tasklist /nh /fi "IMAGENAME eq vlc.exe" /fo csv').count(b'vlc.exe')
-
+        self.popup.open()
         if not self.ids.chkauto.active and qlt == 'best':
-            print('entrou')
-            resol = (streams(f"https://www.twitch.tv/{go}")).keys()
+            resol = UrlRequest(url='https://api.twitch.tv/kraken/videos/followed?limit=50', req_headers=headers)
+            resol.wait()
+            list_resol = next((x for x in resol.result['videos'] if x['channel']['name'] == go.lower()), False)
             box_popup = BoxLayout(orientation='vertical')
-            spn = Spinner(text='160p', values=list(resol)[:-2], size_hint_y=None, height=30)
+            spn = Spinner(text='160p', values=list(list_resol['resolutions'].keys()), size_hint_y=None, height=30)
             box_popup.add_widget(spn)
             box_popup.add_widget(
-                Button(text='Play', size_hint_y=None, height=30, on_release=lambda a: self.play(go, spn.text)))
+                Button(text='Play', size_hint_y=None, height=30, on_release=lambda a: self.play(go, spn.text[:4])))
             self.popup_resol = Popup(title='Qualidade',
                                      size_hint=(None, None),
                                      size=(350, 600),
@@ -115,7 +113,6 @@ class BoxMain(BoxLayout):
                 self.popup_resol.dismiss()
             except Exception:
                 pass
-
             tmp = f"streamlink http://twitch.tv/{go} {qlt}"
             print(tmp)
             Popen(tmp, close_fds=True)
@@ -160,52 +157,13 @@ class BoxImg(BoxLayout):
             self.ids.lbl.text += f'\n\n [color=ffc125]{self.t[3]}[/color]'
 
 
-class Botao(ButtonBehavior, Label):
-    cor = ListProperty([0.1, 0.5, 0.7, 1])
-    cor2 = ListProperty([0.1, 0.5, 0.7, 1])
-
-    def __init__(self, **kwargs):
-        super(Botao, self).__init__(**kwargs)
-        self.load()
-
-    def on_pos(self, *args):
-        self.load()
-
-    def on_size(self, *args):
-        self.load()
-
-    def on_cor(self, *args):
-        self.load()
-
-    def on_press(self, *args):
-        self.cor, self.cor2 = self.cor2, self.cor
-
-    def on_release(self, *args):
-        self.cor, self.cor2 = self.cor2, self.cor
-
-    def load(self, *args):
-        self.canvas.before.clear()
-        with self.canvas.before:
-            Color(rgba=self.cor)
-            Line(rounded_rectangle=(self.x, self.y, self.width, self.height, 10, 100), width=1.4)
-            # Line(points=(self.x, self.y, self.x, self.y + self.height,
-            #              self.x + self.width, self.y+self.height, self.x + self.width, self.y, self.x, self.y),
-            #      cap='none', joint='round', close=True, width=2)
-            # Ellipse(size=(self.height, self.height),
-            #         pos=self.pos)
-            # Ellipse(size=(self.height, self.height),
-            #         pos=(self.x + self.width - self.height, self.y))
-            # Rectangle(size=(self.width - self.height, self.height),
-            #           pos=(self.x + self.height / 2.0, self.y))
-
-
 class Layout(App):
     title = 'Streams no VLC'
 
     def build(self):
+        self.icon = 'twitch_PNG53.png'
         return BoxMain()
 
 
 if __name__ == '__main__':
     Layout().run()
-
