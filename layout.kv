@@ -1,87 +1,81 @@
 #: set cor_borda 64/255, 0, 128/255, 1
 #: set cor_borda2 153/255, 51/255, 1, 1
 <BoxMain>
-    orientation:'vertical'
+    orientation: 'vertical'
     padding: 5, 5, 5, 5
-    canvas:
-        Color:
+    canvas: 
+        Color: 
             rgba: cor_borda
-        Line:
+        Line: 
             rounded_rectangle: self.x, self.y, self.width, self.height, 10, 100
             width: 4
-    BoxLayout:
+    BoxLayout: 
         orientation: 'horizontal'
-        size_hint_y:None
-        height:40
+        size_hint_y: None
+        height: 40
         padding: 5, 5, 5, 5
         spacing: 5
-        Botao:
+        Botao: 
             id: btn_atualizar
-            text:'Atualizar'
+            text: 'Atualizar'
             color: 1, 1, 1, 1
             outline_color: 102/255, 0, 204/255
             outline_width: 1
             font_size: 18
             on_release: app.root.atualizar()
-        UpDown:
+        UpDown: 
             id: dwup
             size_hint_x: None
             width: 60
             on_release: app.root.ids.scr.scroll_to(app.root.ids.img1.children[-1] if app.root.ids.scr.vbar[0]<0.5 else app.root.ids.img1.children[0])
-        Label:
-            text:'Auto:'
+        Label: 
+            text: 'Auto: '
             font_size: 20
-            size_hint_x:None
+            size_hint_x: None
             size: self.texture_size
-        CheckBox:
+        CheckBox: 
             id: chkauto
             size_hint_x: None
             width: 30
             active: True
 
-    ScrollView:
+    ScrollView: 
         id: scr
         scroll_wheel_distance: 50
-        BoxLayout:
-            orientation:'horizontal'
-            size_hint_y:None
-            height:self.minimum_height
-            spacing:15
+        BoxLayout: 
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: self.minimum_height
+            spacing: 15
             padding: 10, 10, 10, 10
-            BoxLayout:
-                id:img1
-                orientation:'vertical'
-                size_hint_y:None
-                height:self.minimum_height
-                spacing:15
-            BoxLayout:
-                id:img2
-                orientation:'vertical'
-                size_hint_y:None
-                height:self.minimum_height
-                spacing:15
-
+            BoxLayout: 
+                id: img1
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: 15
+            BoxLayout: 
+                id: img2
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: 15
 
 <BoxImg>
-    size_hint_y:None
-    height:380
+    size_hint_y: None
+    height: 380
     BtnImagem:
         id: asimg
-        canvas:
-            Color:
-                rgba: cor_borda2
-            Line:
-                rounded_rectangle: self.x, self.y, self.width, self.height, 10, 100
-                width: 2
-        allow_stretch:True
-        on_release: app.root.play(self.children[0].text.split('-')[0].strip())
-        Label:
-            id:lbl
-            markup:True
-            height:30
+        on_release: app.root.play(root.stream)
+        on_release: self.color = 1, 1, 1, 1
+        on_press: self.color = .4, .4, .4, 1
+        Label: 
+            id: lbl
+            markup: True
+            height: 30
             pos: self.parent.center_x-self.width/2, self.parent.y + self.parent.height - self.height
-            font_size:20
-            bold:True
+            font_size: 20
+            bold: True
             text_size: self.parent.width * 5/6, None
             size: self.texture_size
             halign: 'center'
@@ -89,59 +83,68 @@
             outline_color: 97/255, 22/255, 120/255
             outline_width: 2
 
-<UpDown@ButtonBehavior+Label>:
-    canvas.before:
-        Color:
+<UpDown@ButtonBehavior+Label>: 
+    canvas.before: 
+        Color: 
             rgba: 0, .8, 0, 1
-        Triangle:
+        Triangle: 
             points: (self.x, self.y+self.height/2, self.x+self.width/4, self.y+self.height, self.x+self.width/2, self.y+self.height/2)
-        Rectangle:
+        Rectangle: 
             size: self.width/6, self.height/2
             pos: self.x+self.width/6, self.y
-        Color:
+        Color: 
             rgba: .8, 0, 0, 1
-        Triangle:
+        Triangle: 
             points: (self.x+self.width/2, self.y+self.height/2, self.x+self.width*3/4, self.y, self.x+self.width, self.y+self.height/2)
-        Rectangle:
+        Rectangle: 
             size: self.width/6, self.height/2
             pos: self.x+self.width*2/3, self.y+self.height/2
 
 <Botao@ButtonBehavior+Label>
-    canvas.before:
-        Color:
+    canvas.before: 
+        Color: 
             rgba: 1, 1, 1, .9
-        Line:
+        Line: 
             rounded_rectangle: self.x, self.y, self.width, self.height, 10, 100
-            width:1.4
+            width: 1.4
 
 <PopUpProgress>
-    title : 'Abrindo VLC'
-    size_hint : (None, None)
-    size : (600, 70)
-    separator_height : 0
-    title_align : 'center'
-    auto_dismiss : False
-    ProgressBar:
-        id:pgb
-        max:50
-        value:1
+    title: 'Abrindo VLC'
+    size_hint: (None, None)
+    size: (600, 70)
+    separator_height: 0
+    title_align: 'center'
+    auto_dismiss: False
+    ProgressBar: 
+        id: pgb
+        max: 50
+        value: 1
 
 <PopUpResol>
-    title : 'Escolha a Qualidade'
-    size_hint : (None, None)
-    size : (350, 100)
-    separator_height : 0
-    title_align : 'center'
-    auto_dismiss : False
-    BoxLayout:
-        orientation:'vertical'
-        Spinner:
+    title: 'Escolha a Qualidade'
+    size_hint: (None, None)
+    size: (250, 150)
+    separator_height: 0
+    title_align: 'center'
+    auto_dismiss: False
+    BoxLayout: 
+        orientation: 'vertical'
+        Spinner: 
             id: spn
-            text:'audio_only'
-            size_hint_y:None
-            height:35
-        Button:
-            text:'Play'
-            size_hint_y:None
-            height:35
-            on_release: app.root.play(root.go, root.ids.spn.text[:4])
+            text: 'audio_only'
+            size_hint_y: None
+            height: 35
+        Button: 
+            text: 'Play'
+            size_hint_y: None
+            height: 35
+            on_release: app.root.play(root.go, root.ids.spn.text.replace('30',''))
+
+<BtnImagem@ButtonBehavior+AsyncImage>
+    canvas:
+        Color:
+            rgba: cor_borda2
+        Line:
+            rounded_rectangle: self.x, self.y, self.width, self.height, 10, 100
+            width: 2
+    allow_stretch: True

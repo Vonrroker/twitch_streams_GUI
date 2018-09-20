@@ -1,25 +1,23 @@
 from kivy.config import Config
 
 Config.set('graphics', 'window_state', 'maximized')
-from kivy.network.urlrequest import UrlRequest
 from kivy.app import App
-from kivy.uix.popup import Popup
-from kivy.uix.behaviors import ButtonBehavior
-from kivy.uix.image import AsyncImage
-from kivy.uix.boxlayout import BoxLayout
-from os import system
-from subprocess import Popen, check_output
 from kivy.clock import Clock
 from kivy.core.window import Window
-from credencial import credencial
-from pprint import pprint
+from kivy.uix.popup import Popup
+from kivy.uix.boxlayout import BoxLayout
+from kivy.network.urlrequest import UrlRequest
+from credencial import cred
+from os import system
+from subprocess import Popen, check_output
+from time import sleep
 
 
 headers = {'Accept': 'application/vnd.twitchtv.v5+json',
-           'Client-ID': credencial['client_id'],
-           'Authorization': f'OAuth {credencial["oauth_token"]}'}
+           'Client-ID': cred['client_id'],
+           'Authorization': f'OAuth {cred["oauth_token"]}'}
 headers2 = {'Accept': 'application/vnd.twitchtv.v5+json',
-            'Client-ID': credencial['client_id']}
+            'Client-ID': cred['client_id']}
 
 
 class BoxMain(BoxLayout):
@@ -38,9 +36,6 @@ class BoxMain(BoxLayout):
             self.ids.scr.scroll_y = self.ids.scr.scroll_y - 0.05
         elif args[1] == 273 and self.ids.scr.scroll_y < 1:
             self.ids.scr.scroll_y = self.ids.scr.scroll_y + 0.05
-
-        # down = 274
-        # up = 273
 
     def set_cursor(self, *args):
         pos_x = args[1][0]
@@ -83,18 +78,20 @@ class BoxMain(BoxLayout):
         self.popup.open()
         if not self.ids.chkauto.active and qlt == 'best':
             resol = UrlRequest(url='https://api.twitch.tv/kraken/videos/followed?limit=90', req_headers=headers)
-            resol.wait()
+            while resol.resp_status is None:
+                resol._dispatch_result(0.5)
+                sleep(0.5)
             list_resol = next((x for x in resol.result['videos'] if
                                x['status'] == 'recording' and
                                x['channel']['name'] == go.lower()),
                               False)
-            self.popup_resol = PopUpResol(list(list_resol['resolutions'].keys()), go)
+            self.popup_resol = PopUpResol(list(list_resol['resolutions'].keys())[:-1], go)
             self.popup_resol.bind(on_open=self.popup.dismiss)
             self.popup_resol.open()
         else:
             try:
                 self.popup_resol.dismiss()
-            except Exception:
+            except AttributeError:
                 pass
             tmp = f"streamlink http://twitch.tv/{go} {qlt}"
             print(tmp)
@@ -125,21 +122,11 @@ class PopUpResol(Popup):
         self.go = go
 
 
-class BtnImagem(ButtonBehavior, AsyncImage):
-    def __init__(self, **kwargs):
-        super(BtnImagem, self).__init__(**kwargs)
-
-    def on_press(self):
-        self.color = [.4, .4, .4, 1]
-
-    def on_release(self):
-        self.color = [1, 1, 1, 1]
-
-
 class BoxImg(BoxLayout):
     def __init__(self, text, **kwargs):
         super().__init__(**kwargs)
         self.t = text
+        self.stream = text[0]
         self.ids.asimg.source = text[4]
         self.ids.lbl.text = "{} - {} - {:,}[ref={}][color=ff0000]...[/color][/ref]".format(text[0].capitalize(),
                                                                                            text[1],
