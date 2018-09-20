@@ -2,8 +2,6 @@ from kivy.config import Config
 
 Config.set('graphics', 'window_state', 'maximized')
 from kivy.network.urlrequest import UrlRequest
-from kivy.uix.button import Button
-from kivy.uix.spinner import Spinner
 from kivy.app import App
 from kivy.uix.popup import Popup
 from kivy.uix.behaviors import ButtonBehavior
@@ -86,27 +84,11 @@ class BoxMain(BoxLayout):
         if not self.ids.chkauto.active and qlt == 'best':
             resol = UrlRequest(url='https://api.twitch.tv/kraken/videos/followed?limit=90', req_headers=headers)
             resol.wait()
-            pprint(resol.result)
             list_resol = next((x for x in resol.result['videos'] if
                                x['status'] == 'recording' and
                                x['channel']['name'] == go.lower()),
                               False)
-            box_popup = BoxLayout(orientation='vertical')
-            spn = Spinner(text='audio_only', values=list(list_resol['resolutions'].keys()), size_hint_y=None, height=30)
-            box_popup.add_widget(spn)
-            box_popup.add_widget(Button(text='Play',
-                                        size_hint_y=None,
-                                        height=30,
-                                        on_release=lambda a: self.play(go, spn.text[:4])
-                                        )
-                                 )
-            self.popup_resol = Popup(title='Qualidade',
-                                     size_hint=(None, None),
-                                     size=(350, 600),
-                                     content=box_popup,
-                                     separator_height=0,
-                                     title_align='center',
-                                     auto_dismiss=False)
+            self.popup_resol = PopUpResol(list(list_resol['resolutions'].keys()), go)
             self.popup_resol.bind(on_open=self.popup.dismiss)
             self.popup_resol.open()
         else:
@@ -134,6 +116,13 @@ class PopUpProgress(Popup):
         self.ids.pgb.value += 1
         if self.ids.pgb.value >= 50:
             self.ids.pgb.value = 0
+
+
+class PopUpResol(Popup):
+    def __init__(self, list_spn, go, **kwargs):
+        super().__init__(**kwargs)
+        self.ids.spn.values = list_spn
+        self.go = go
 
 
 class BtnImagem(ButtonBehavior, AsyncImage):

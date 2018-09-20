@@ -125,3 +125,23 @@
         id:pgb
         max:50
         value:1
+
+<PopUpResol>
+    title : 'Escolha a Qualidade'
+    size_hint : (None, None)
+    size : (350, 100)
+    separator_height : 0
+    title_align : 'center'
+    auto_dismiss : False
+    BoxLayout:
+        orientation:'vertical'
+        Spinner:
+            id: spn
+            text:'audio_only'
+            size_hint_y:None
+            height:35
+        Button:
+            text:'Play'
+            size_hint_y:None
+            height:35
+            on_release: app.root.play(root.go, root.ids.spn.text[:4])
