@@ -10,14 +10,6 @@ from kivy.network.urlrequest import UrlRequest
 from credencial import cred
 from os import system
 from subprocess import Popen, check_output
-from time import sleep
-
-
-headers = {'Accept': 'application/vnd.twitchtv.v5+json',
-           'Client-ID': cred['client_id'],
-           'Authorization': f'OAuth {cred["oauth_token"]}'}
-headers2 = {'Accept': 'application/vnd.twitchtv.v5+json',
-            'Client-ID': cred['client_id']}
 
 
 class BoxMain(BoxLayout):
@@ -26,7 +18,8 @@ class BoxMain(BoxLayout):
         self.popup = PopUpProgress()
         self.hand_area = [[self.ids.btn_atualizar.size, self.ids.btn_atualizar.pos],
                           [self.ids.dwup.size, self.ids.dwup.pos],
-                          [self.ids.chkauto.size, self.ids.chkauto.pos]]
+                          [self.ids.chkauto.size, self.ids.chkauto.pos]
+                          ]
         self.atualizar()
         Window.bind(mouse_pos=self.set_cursor)
         Window.bind(on_key_down=self.move)
@@ -40,9 +33,10 @@ class BoxMain(BoxLayout):
     def set_cursor(self, *args):
         pos_x = args[1][0]
         pos_y = args[1][1]
-        is_area = [self.hand_area[i][1][0] < pos_x < self.hand_area[i][0][0] + self.hand_area[i][1][0] and
-                   self.hand_area[i][0][1] + self.hand_area[i][1][1] > pos_y > self.hand_area[i][1][1]
-                   for i in range(len(self.hand_area))]
+        is_area = [self.hand_area[i][1][0] < pos_x < (self.hand_area[i][0][0] + self.hand_area[i][1][0]) and
+                   (self.hand_area[i][0][1] + self.hand_area[i][1][1]) > pos_y > self.hand_area[i][1][1]
+                   for i in range(len(self.hand_area))
+                   ]
         if any(is_area):
             Window.set_system_cursor('hand')
         else:
@@ -53,13 +47,19 @@ class BoxMain(BoxLayout):
     Carrega na tela a imagem preview, Nome, nº de viewers e jogo de todos as streams ao vivo
     que você segue.
         """
-        on_streans = UrlRequest(url='https://api.twitch.tv/kraken/streams/followed', req_headers=headers)
+        on_streans = UrlRequest(url='https://api.twitch.tv/kraken/streams/followed',
+                                req_headers={'Accept': 'application/vnd.twitchtv.v5+json',
+                                             'Client-ID': cred['client_id'],
+                                             'Authorization': f'OAuth {cred["oauth_token"]}'
+                                             }
+                                )
         on_streans.wait()
         self.streams_on = [[x['channel']['name'],
                             x['game'],
                             x['viewers'],
                             x['channel']['status'],
-                            x['preview']['large']]
+                            x['preview']['large']
+                            ]
                            for x in on_streans.result['streams']
                            ]
         self.ids.img1.clear_widgets()
@@ -75,24 +75,28 @@ class BoxMain(BoxLayout):
 
     def play(self, go: str, qlt='best'):
         system('cls')
-        self.popup.open()
         if not self.ids.chkauto.active and qlt == 'best':
-            resol = UrlRequest(url='https://api.twitch.tv/kraken/videos/followed?limit=90', req_headers=headers)
-            while resol.resp_status is None:
-                resol._dispatch_result(0.5)
-                sleep(0.5)
+            resol = UrlRequest(url='https://api.twitch.tv/kraken/videos/followed?limit=90',
+                               req_headers={'Accept': 'application/vnd.twitchtv.v5+json',
+                                            'Client-ID': cred['client_id'],
+                                            'Authorization': f'OAuth {cred["oauth_token"]}'
+                                            }
+                               )
+            resol.wait()
             list_resol = next((x for x in resol.result['videos'] if
                                x['status'] == 'recording' and
-                               x['channel']['name'] == go.lower()),
-                              False)
+                               x['channel']['name'] == go.lower()
+                               ),
+                              False
+                              )
             self.popup_resol = PopUpResol(list(list_resol['resolutions'].keys())[:-1], go)
-            self.popup_resol.bind(on_open=self.popup.dismiss)
             self.popup_resol.open()
         else:
+            self.popup.open()
             try:
                 self.popup_resol.dismiss()
-            except AttributeError:
-                pass
+            except UnboundLocalError:
+                print('O popup escolha de resoluçoes nao foi criado ainda')
             tmp = f"streamlink http://twitch.tv/{go} {qlt}"
             print(tmp)
             Popen(tmp, close_fds=True)
