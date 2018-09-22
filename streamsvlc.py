@@ -23,6 +23,7 @@ class BoxMain(BoxLayout):
         self.atualizar()
         Window.bind(mouse_pos=self.set_cursor)
         Window.bind(on_key_down=self.move)
+        print(Window.size)
 
     def move(self, *args):
         if args[1] == 274 and self.ids.scr.scroll_y > 0:
@@ -64,14 +65,18 @@ class BoxMain(BoxLayout):
                            ]
         self.ids.img1.clear_widgets()
         self.ids.img2.clear_widgets()
+        self.ids.img3.clear_widgets()
         for stream in self.streams_on:
-            if self.streams_on.index(stream) % 2 == 0:
+            if (((self.streams_on.index(stream) - 0)/3) + 1).is_integer() and (((self.streams_on.index(stream) - 0)/3) + 1) > 0:
                 self.ids.img1.add_widget(BoxImg(text=stream))
-            else:
+            elif (((self.streams_on.index(stream) - 1)/3) + 1).is_integer() and (((self.streams_on.index(stream) - 0)/3) + 1) > 0:
                 self.ids.img2.add_widget(BoxImg(text=stream))
-
+            elif (((self.streams_on.index(stream) - 2)/3) + 1).is_integer() and (((self.streams_on.index(stream) - 0)/3) + 1) > 0:
+                self.ids.img3.add_widget(BoxImg(text=stream))
         if len(self.ids['img1'].children) > len(self.ids['img2'].children):
-            self.ids.img2.add_widget(BoxLayout(size_hint_y=None, height=380))
+            self.ids.img2.add_widget(BoxLayout(size_hint_y=None, height=200))
+        if len(self.ids['img2'].children) > len(self.ids['img3'].children):
+            self.ids.img3.add_widget(BoxLayout(size_hint_y=None, height=200))
 
     def play(self, go: str, qlt='best'):
         system('cls')
@@ -95,7 +100,7 @@ class BoxMain(BoxLayout):
             self.popup.open()
             try:
                 self.popup_resol.dismiss()
-            except UnboundLocalError:
+            except Exception:
                 print('O popup escolha de resoluçoes nao foi criado ainda')
             tmp = f"streamlink http://twitch.tv/{go} {qlt}"
             print(tmp)
