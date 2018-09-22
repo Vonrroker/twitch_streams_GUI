@@ -1,15 +1,17 @@
-from kivy.config import Config
+from os import system
+from subprocess import Popen, check_output
 
+from kivy.config import Config
 Config.set('graphics', 'window_state', 'maximized')
+Config.write()
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.core.window import Window
-from kivy.uix.popup import Popup
-from kivy.uix.boxlayout import BoxLayout
 from kivy.network.urlrequest import UrlRequest
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.popup import Popup
+
 from credencial import cred
-from os import system
-from subprocess import Popen, check_output
 
 
 class BoxMain(BoxLayout):
@@ -26,10 +28,15 @@ class BoxMain(BoxLayout):
         print(Window.size)
 
     def move(self, *args):
+        print(args)
         if args[1] == 274 and self.ids.scr.scroll_y > 0:
             self.ids.scr.scroll_y = self.ids.scr.scroll_y - 0.05
         elif args[1] == 273 and self.ids.scr.scroll_y < 1:
             self.ids.scr.scroll_y = self.ids.scr.scroll_y + 0.05
+        elif args[1] == 279 and self.ids.scr.scroll_y > 0:
+            self.ids.scr.scroll_y = 0
+        elif args[1] == 278 and self.ids.scr.scroll_y < 1:
+            self.ids.scr.scroll_y = 1
 
     def set_cursor(self, *args):
         pos_x = args[1][0]
@@ -67,19 +74,19 @@ class BoxMain(BoxLayout):
         self.ids.img2.clear_widgets()
         self.ids.img3.clear_widgets()
         for stream in self.streams_on:
-            if (((self.streams_on.index(stream) - 0) / 3) + 1).is_integer() and (
-                    ((self.streams_on.index(stream) - 0) / 3) + 1) > 0:
+            if ((self.streams_on.index(stream) + 3) / 3).is_integer() and \
+                    ((self.streams_on.index(stream) + 3) / 3) > 0:
                 self.ids.img1.add_widget(BoxImg(text=stream))
-            elif (((self.streams_on.index(stream) - 1) / 3) + 1).is_integer() and (
-                    ((self.streams_on.index(stream) - 0) / 3) + 1) > 0:
+            elif ((self.streams_on.index(stream) + 2) / 3).is_integer() and \
+                    ((self.streams_on.index(stream) + 2) / 3) > 0:
                 self.ids.img2.add_widget(BoxImg(text=stream))
-            elif (((self.streams_on.index(stream) - 2) / 3) + 1).is_integer() and (
-                    ((self.streams_on.index(stream) - 0) / 3) + 1) > 0:
+            elif ((self.streams_on.index(stream) + 1) / 3) .is_integer() and \
+                    ((self.streams_on.index(stream) + 1) / 3) > 0:
                 self.ids.img3.add_widget(BoxImg(text=stream))
         if len(self.ids['img1'].children) > len(self.ids['img2'].children):
-            self.ids.img2.add_widget(BoxLayout(size_hint_y=None, height=((Window.size[0] - 60) / 3) / 1.8))
+            self.ids.img2.add_widget(BoxLayout(size_hint_y=None, height=((Window.size[0] - 60) / 3) / 1.81))
         if len(self.ids['img2'].children) > len(self.ids['img3'].children):
-            self.ids.img3.add_widget(BoxLayout(size_hint_y=None, height=((Window.size[0] - 60) / 3) / 1.8))
+            self.ids.img3.add_widget(BoxLayout(size_hint_y=None, height=((Window.size[0] - 60) / 3) / 1.81))
 
     def play(self, go: str, qlt='best'):
         system('cls')
@@ -137,7 +144,7 @@ class PopUpResol(Popup):
 class BoxImg(BoxLayout):
     def __init__(self, text, **kwargs):
         super().__init__(**kwargs)
-        self.height = ((Window.size[0] - 60) / 3) / 1.8
+        self.height = ((Window.size[0] - 60) / 3) / 1.81
         self.t = text
         self.stream = text[0]
         self.ids.asimg.source = text[4]
@@ -155,7 +162,7 @@ class BoxImg(BoxLayout):
             self.ids.lbl.text += f'\n\n [color=ffc125]{self.t[3]}[/color]'
 
     def resize(self, *args):
-        self.height = ((Window.size[0] - 60) / 3) / 1.8
+        self.height = ((Window.size[0] - 60) / 3) / 1.81
 
 
 class Layout(App):
