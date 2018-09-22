@@ -67,16 +67,19 @@ class BoxMain(BoxLayout):
         self.ids.img2.clear_widgets()
         self.ids.img3.clear_widgets()
         for stream in self.streams_on:
-            if (((self.streams_on.index(stream) - 0)/3) + 1).is_integer() and (((self.streams_on.index(stream) - 0)/3) + 1) > 0:
+            if (((self.streams_on.index(stream) - 0) / 3) + 1).is_integer() and (
+                    ((self.streams_on.index(stream) - 0) / 3) + 1) > 0:
                 self.ids.img1.add_widget(BoxImg(text=stream))
-            elif (((self.streams_on.index(stream) - 1)/3) + 1).is_integer() and (((self.streams_on.index(stream) - 0)/3) + 1) > 0:
+            elif (((self.streams_on.index(stream) - 1) / 3) + 1).is_integer() and (
+                    ((self.streams_on.index(stream) - 0) / 3) + 1) > 0:
                 self.ids.img2.add_widget(BoxImg(text=stream))
-            elif (((self.streams_on.index(stream) - 2)/3) + 1).is_integer() and (((self.streams_on.index(stream) - 0)/3) + 1) > 0:
+            elif (((self.streams_on.index(stream) - 2) / 3) + 1).is_integer() and (
+                    ((self.streams_on.index(stream) - 0) / 3) + 1) > 0:
                 self.ids.img3.add_widget(BoxImg(text=stream))
         if len(self.ids['img1'].children) > len(self.ids['img2'].children):
-            self.ids.img2.add_widget(BoxLayout(size_hint_y=None, height=200))
+            self.ids.img2.add_widget(BoxLayout(size_hint_y=None, height=((Window.size[0] - 60) / 3) / 1.8))
         if len(self.ids['img2'].children) > len(self.ids['img3'].children):
-            self.ids.img3.add_widget(BoxLayout(size_hint_y=None, height=200))
+            self.ids.img3.add_widget(BoxLayout(size_hint_y=None, height=((Window.size[0] - 60) / 3) / 1.8))
 
     def play(self, go: str, qlt='best'):
         system('cls')
@@ -134,6 +137,7 @@ class PopUpResol(Popup):
 class BoxImg(BoxLayout):
     def __init__(self, text, **kwargs):
         super().__init__(**kwargs)
+        self.height = ((Window.size[0] - 60) / 3) / 1.8
         self.t = text
         self.stream = text[0]
         self.ids.asimg.source = text[4]
@@ -141,12 +145,17 @@ class BoxImg(BoxLayout):
                                                                                            text[1],
                                                                                            text[2],
                                                                                            text[0]).replace(',', '.')
+        Window.bind(on_resize=self.resize)
 
     def info(self):
+        print(self.width)
         if self.t[3] in self.ids.lbl.text:
             self.ids.lbl.text = self.ids.lbl.text.replace(self.t[3], '').replace('\n\n', '')
         else:
             self.ids.lbl.text += f'\n\n [color=ffc125]{self.t[3]}[/color]'
+
+    def resize(self, *args):
+        self.height = ((Window.size[0] - 60) / 3) / 1.8
 
 
 class Layout(App):

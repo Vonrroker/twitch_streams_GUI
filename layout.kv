@@ -1,5 +1,6 @@
 #: set cor_borda 64/255, 0, 128/255, 1
 #: set cor_borda2 153/255, 51/255, 1, 1
+#: import Window kivy.core.window
 <BoxMain>
     orientation: 'vertical'
     padding: 5, 5, 5, 5
@@ -69,7 +70,6 @@
 
 <BoxImg>
     size_hint_y: None
-    height: 200
     BtnImagem:
         id: asimg
         on_release: app.root.play(root.stream)
