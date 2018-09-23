@@ -26,11 +26,9 @@ class BoxMain(BoxLayout):
         self.atualizar()
         Window.bind(mouse_pos=self.set_cursor)
         Window.bind(on_key_down=self.move)
-        print(Window.size)
         Window.bind(on_resize=self.resize)
 
     def move(self, *args):
-        print(args)
         if args[1] == 274 and self.ids.scr.scroll_y > 0:
             self.ids.scr.scroll_y = self.ids.scr.scroll_y - 0.05
         elif args[1] == 273 and self.ids.scr.scroll_y < 1:
@@ -85,22 +83,16 @@ class BoxMain(BoxLayout):
             elif ((self.streams_on.index(stream) + 1) / 3).is_integer() and \
                     ((self.streams_on.index(stream) + 1) / 3) > 0:
                 self.ids.img3.add_widget(BoxImg(text=stream))
-        self.box_extra1 = False
-        self.box_extra2 = False
-        if len(self.ids['img1'].children) > len(self.ids['img2'].children):
+        if len(self.ids.img1.children) > len(self.ids.img2.children):
             self.ids.img2.add_widget(BoxLayout(size_hint_y=None, height=((Window.size[0] - 60) / 3) / 1.81))
-            self.box_extra1 = True
-        if len(self.ids['img2'].children) > len(self.ids['img3'].children):
+        if len(self.ids.img2.children) > len(self.ids.img3.children):
             self.ids.img3.add_widget(BoxLayout(size_hint_y=None, height=((Window.size[0] - 60) / 3) / 1.81))
-            self.box_extra2 = True
 
     def resize(self, *args):
-        if self.box_extra1:
-            self.ids.img2.remove_widget(self.ids.img2.children[0])
-            self.ids.img2.add_widget(BoxLayout(size_hint_y=None, height=((Window.size[0] - 60) / 3) / 1.81))
-        if self.box_extra2:
-            self.ids.img3.remove_widget(self.ids.img3.children[0])
-            self.ids.img3.add_widget(BoxLayout(size_hint_y=None, height=((Window.size[0] - 60) / 3) / 1.81))
+        if not self.ids.img2.children[0].children:
+            self.ids.img2.children[0].height = (((Window.size[0] - 60) / 3) / 1.81)
+        if not self.ids.img3.children[0].children:
+            self.ids.img3.children[0].height = (((Window.size[0] - 60) / 3) / 1.81)
 
     def play(self, go: str, qlt='best'):
         system('cls')
