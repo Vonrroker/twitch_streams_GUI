@@ -28,7 +28,7 @@
             id: dwup
             size_hint_x: None
             width: 60
-            on_release: app.root.ids.scr.scroll_to(app.root.ids.img1.children[-1] if app.root.ids.scr.vbar[0]<0.5 else app.root.ids.img1.children[0])
+            on_release: app.root.ids.scr.scroll_y = 1 if app.root.ids.scr.vbar[0]<0.5 else 0
         Label: 
             text: 'Auto: '
             font_size: 20
@@ -55,7 +55,7 @@
                 size_hint_y: None
                 height: self.minimum_height
                 spacing: 15
-            BoxLayout: 
+            BoxLayout:
                 id: img2
                 orientation: 'vertical'
                 size_hint_y: None

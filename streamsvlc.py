@@ -2,6 +2,7 @@ from os import system
 from subprocess import Popen, check_output
 
 from kivy.config import Config
+
 Config.set('graphics', 'window_state', 'maximized')
 Config.write()
 from kivy.app import App
@@ -26,6 +27,7 @@ class BoxMain(BoxLayout):
         Window.bind(mouse_pos=self.set_cursor)
         Window.bind(on_key_down=self.move)
         print(Window.size)
+        Window.bind(on_resize=self.resize)
 
     def move(self, *args):
         print(args)
@@ -80,12 +82,24 @@ class BoxMain(BoxLayout):
             elif ((self.streams_on.index(stream) + 2) / 3).is_integer() and \
                     ((self.streams_on.index(stream) + 2) / 3) > 0:
                 self.ids.img2.add_widget(BoxImg(text=stream))
-            elif ((self.streams_on.index(stream) + 1) / 3) .is_integer() and \
+            elif ((self.streams_on.index(stream) + 1) / 3).is_integer() and \
                     ((self.streams_on.index(stream) + 1) / 3) > 0:
                 self.ids.img3.add_widget(BoxImg(text=stream))
+        self.box_extra1 = False
+        self.box_extra2 = False
         if len(self.ids['img1'].children) > len(self.ids['img2'].children):
             self.ids.img2.add_widget(BoxLayout(size_hint_y=None, height=((Window.size[0] - 60) / 3) / 1.81))
+            self.box_extra1 = True
         if len(self.ids['img2'].children) > len(self.ids['img3'].children):
+            self.ids.img3.add_widget(BoxLayout(size_hint_y=None, height=((Window.size[0] - 60) / 3) / 1.81))
+            self.box_extra2 = True
+
+    def resize(self, *args):
+        if self.box_extra1:
+            self.ids.img2.remove_widget(self.ids.img2.children[0])
+            self.ids.img2.add_widget(BoxLayout(size_hint_y=None, height=((Window.size[0] - 60) / 3) / 1.81))
+        if self.box_extra2:
+            self.ids.img3.remove_widget(self.ids.img3.children[0])
             self.ids.img3.add_widget(BoxLayout(size_hint_y=None, height=((Window.size[0] - 60) / 3) / 1.81))
 
     def play(self, go: str, qlt='best'):
@@ -110,7 +124,7 @@ class BoxMain(BoxLayout):
             self.popup.open()
             try:
                 self.popup_resol.dismiss()
-            except Exception:
+            except AttributeError:
                 print('O popup escolha de resoluçoes nao foi criado ainda')
             tmp = f"streamlink http://twitch.tv/{go} {qlt}"
             print(tmp)
