@@ -2,9 +2,7 @@ from os import system
 from subprocess import Popen, check_output
 
 from kivy.config import Config
-
 Config.set('graphics', 'window_state', 'maximized')
-Config.write()
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.core.window import Window
