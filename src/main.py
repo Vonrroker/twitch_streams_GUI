@@ -11,6 +11,9 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.popup import Popup
 
 from credencial import cred
+"""crendencial.py contem um dict com as credenciais ex:
+cred = {'oauth_token': 'seu_token',
+        'client_id': 'seu client id'}"""
 
 
 class BoxMain(BoxLayout):
