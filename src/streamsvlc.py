@@ -173,7 +173,6 @@ class Layout(App):
     title = 'Streams no VLC'
 
     def build(self):
-        self.icon = 'twitch_PNG53.png'
         return BoxMain()
 
 
