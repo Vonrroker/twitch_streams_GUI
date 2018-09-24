@@ -115,7 +115,7 @@ class BoxMain(BoxLayout):
             try:
                 self.popup_resol.dismiss()
             except AttributeError:
-                print('O popup escolha de resoluçoes nao foi criado ainda')
+                pass
             tmp = f"streamlink http://twitch.tv/{go} {qlt}"
             print(tmp)
             Popen(tmp, close_fds=True)
@@ -159,7 +159,6 @@ class BoxImg(BoxLayout):
         Window.bind(on_resize=self.resize)
 
     def info(self):
-        print(self.width)
         if self.t[3] in self.ids.lbl.text:
             self.ids.lbl.text = self.ids.lbl.text.replace(self.t[3], '').replace('\n\n', '')
         else:
