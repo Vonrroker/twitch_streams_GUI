@@ -4,6 +4,7 @@ from subprocess import Popen, check_output
 from kivy.config import Config
 Config.set('graphics', 'window_state', 'maximized')
 from kivy.app import App
+from kivy.animation import Animation
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.network.urlrequest import UrlRequest
@@ -11,6 +12,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.popup import Popup
 
 from credencial import cred
+
 """crendencial.py contem um dict com as credenciais ex:
 cred = {'oauth_token': 'seu_token',
         'client_id': 'seu client id'}"""
@@ -52,24 +54,25 @@ class BoxMain(BoxLayout):
             Window.set_system_cursor('arrow')
 
     def atualizar(self):
-        """
-    Carrega na tela a imagem preview, Nome, nº de viewers e jogo de todos as streams ao vivo
-    que você segue.
-        """
-        on_streans = UrlRequest(url='https://api.twitch.tv/kraken/streams/followed',
-                                req_headers={'Accept': 'application/vnd.twitchtv.v5+json',
-                                             'Client-ID': cred['client_id'],
-                                             'Authorization': f'OAuth {cred["oauth_token"]}'
-                                             }
-                                )
-        on_streans.wait()
+        self.popup.open()
+        UrlRequest(url='https://api.twitch.tv/kraken/streams/followed',
+                   req_headers={'Accept': 'application/vnd.twitchtv.v5+json',
+                                'Client-ID': cred['client_id'],
+                                'Authorization': f'OAuth {cred["oauth_token"]}'
+                                },
+                   on_success=self.carregar_tela
+
+                   )
+
+    def carregar_tela(self, *args):
+        self.popup.dismiss()
         self.streams_on = [[x['channel']['name'],
                             x['game'],
                             x['viewers'],
                             x['channel']['status'],
                             x['preview']['large']
                             ]
-                           for x in on_streans.result['streams']
+                           for x in args[1]['streams']
                            ]
         self.ids.img1.clear_widgets()
         self.ids.img2.clear_widgets()
@@ -97,23 +100,17 @@ class BoxMain(BoxLayout):
 
     def play(self, go: str, qlt='best'):
         system('cls')
+        self.popup.open()
         if not self.ids.chkauto.active and qlt == 'best':
-            resol = UrlRequest(url='https://api.twitch.tv/kraken/videos/followed?limit=90',
-                               req_headers={'Accept': 'application/vnd.twitchtv.v5+json',
-                                            'Client-ID': cred['client_id'],
-                                            'Authorization': f'OAuth {cred["oauth_token"]}'
-                                            }
-                               )
-            resol.wait()
-            list_resol = next((x for x in resol.result['videos'] if
-                               x['status'] == 'recording' and
-                               x['channel']['name'] == go.lower()
-                               ),
-                              False
-                              )
-            self.popup_resol = PopUpResol(list(list_resol['resolutions'].keys())[:-1], go)
-            self.popup_resol.open()
+            UrlRequest(url='https://api.twitch.tv/kraken/videos/followed?limit=90',
+                       req_headers={'Accept': 'application/vnd.twitchtv.v5+json',
+                                    'Client-ID': cred['client_id'],
+                                    'Authorization': f'OAuth {cred["oauth_token"]}'
+                                    },
+                       on_success=lambda *args: self.extrair_resol(args, go=go)
+                       )
         else:
+            self.popup.chk_vlc = True
             self.popup.open()
             try:
                 self.popup_resol.dismiss()
@@ -123,22 +120,37 @@ class BoxMain(BoxLayout):
             print(tmp)
             Popen(tmp, close_fds=True)
 
+    def extrair_resol(self, *args, go):
+        self.popup.dismiss()
+        list_resol = next((x for x in args[0][1]['videos'] if
+                           x['status'] == 'recording' and
+                           x['channel']['name'] == go.lower()
+                           ),
+                          False
+                          )
+        self.popup_resol = PopUpResol(list(list_resol['resolutions'].keys())[:-1], go)
+        self.popup_resol.open()
+
 
 class PopUpProgress(Popup):
-    def __init__(self, **kwargs):
+    def __init__(self, chk_vlc=False, **kwargs):
         super().__init__(**kwargs)
+        self.chk_vlc = chk_vlc
         self.vlcs = check_output('tasklist /nh /fi "IMAGENAME eq vlc.exe" /fo csv').count(b'vlc.exe')
+        self.anim = Animation(value=360, duration=4) + Animation(value=1, duration=0)
+        self.anim.repeat = True
+        self.anim.start(self.ids.pgb)
 
     def on_open(self):
-        Clock.schedule_interval(self.next, .06)
+        if self.chk_vlc:
+            print('entrou')
+            Clock.schedule_interval(self.next, .1)
 
     def next(self, dt):
         if check_output('tasklist /nh /fi "IMAGENAME eq vlc.exe" /fo csv').count(b'vlc.exe') != self.vlcs:
             self.dismiss()
+            self.chk_vlc = False
             return False
-        self.ids.pgb.value += 1
-        if self.ids.pgb.value >= 50:
-            self.ids.pgb.value = 0
 
 
 class PopUpResol(Popup):

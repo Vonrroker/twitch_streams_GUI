@@ -1,6 +1,5 @@
 #: set cor_borda 64/255, 0, 128/255, 1
 #: set cor_borda2 153/255, 51/255, 1, 1
-#: import Window kivy.core.window
 <BoxMain>
     orientation: 'vertical'
     padding: 5, 5, 5, 5
@@ -115,16 +114,14 @@
             width: 1.4
 
 <PopUpProgress>
-    title: 'Abrindo VLC'
+    title: ''
+    background: 'fundo_transparente.png'
     size_hint: (None, None)
-    size: (600, 70)
+    size: (300, 300)
     separator_height: 0
-    title_align: 'center'
     auto_dismiss: False
-    ProgressBar: 
+    CicleProgress:
         id: pgb
-        max: 50
-        value: 1
 
 <PopUpResol>
     title: 'Escolha a Qualidade'
@@ -154,3 +151,14 @@
             rounded_rectangle: self.x, self.y, self.width, self.height, 10, 100
             width: 2
     allow_stretch: True
+
+<CicleProgress@ProgressBar>
+    canvas:
+        Clear
+        Color:
+            rgba: 0, .9, 0, .8
+        Line:
+            circle: self.center_x, self.center_y, self.height/4, 0, self.value
+            width: 6
+    max: 360
+    value: 1
