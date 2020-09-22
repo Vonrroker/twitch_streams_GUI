@@ -1,3 +1,4 @@
+##:kivy
 #: set cor_borda 64/255, 0, 128/255, 1
 #: set cor_borda2 153/255, 51/255, 1, 1
 <BoxMain>
@@ -12,9 +13,9 @@
     BoxLayout: 
         orientation: 'horizontal'
         size_hint_y: None
-        height: 40
-        padding: 5, 5, 5, 5
-        spacing: 5
+        height: 60
+        padding: 8, 8, 8, 8
+        spacing: 30
         Botao: 
             id: btn_atualizar
             text: 'Atualizar'
@@ -26,7 +27,7 @@
         UpDown: 
             id: dwup
             size_hint_x: None
-            width: 60
+            width: 100
             on_release: app.root.ids.scr.scroll_y = 0 if (app.root.ids.scr.vbar[0])>(1-(app.root.ids.scr.vbar[0]+app.root.ids.scr.vbar[1])) else 1
         Label: 
             text: 'Auto: '
@@ -115,7 +116,7 @@
 
 <PopUpProgress>
     title: ''
-    background: 'fundo_transparente.png'
+    background: 'assets/fundo_transparente.png'
     size_hint: (None, None)
     size: (300, 300)
     separator_height: 0
