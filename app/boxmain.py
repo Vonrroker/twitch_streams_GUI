@@ -14,6 +14,7 @@ from kivy.properties import ObjectProperty
 from kivy.clock import mainthread
 from streamlink import Streamlink
 from credencial import cred
+from utils.serializer_list_streams import serializer
 from fakes.list_streams import fake_list_streams
 
 
@@ -32,6 +33,9 @@ class BoxMain(MDBoxLayout):
         self.popup = PopUpProgress()
         self.refresh_streams_on()
         self.button_bottomtop.bind(on_press=self.bottomtop)
+        self.scrollview_streams.bind(
+            on_scroll_stop=lambda *args: print(args[0].vbar[0])
+        )
 
     def bottomtop(self, *args):
         if (self.scrollview_streams.vbar[0]) > (
@@ -53,25 +57,17 @@ class BoxMain(MDBoxLayout):
                     "Client-ID": cred["client_id"],
                     "Authorization": f'OAuth {cred["oauth_token"]}',
                 },
-                on_success=lambda *args: self.load_grid_streams(
-                    data_streams=args[1]["streams"]
+                on_success=lambda *response: self.load_grid_streams(
+                    serializer(response)
                 ),
-                on_failure=lambda *args: print(args),
+                on_failure=lambda *response: print(response),
             )
 
-    def load_grid_streams(self, data_streams):
+    def load_grid_streams(self, list_data_streams):
         self.popup.dismiss()
 
-        self.list_streams_on = [
-            {
-                "channel_name": x["channel"]["name"],
-                "game": x["game"],
-                "viewers": x["viewers"],
-                "channel_status": x["channel"]["status"],
-                "preview_img": x["preview"]["large"],
-            }
-            for x in data_streams
-        ]
+        self.list_streams_on = list_data_streams
+
         self.grid_streams.clear_widgets()
 
         for stream in self.list_streams_on:
@@ -81,7 +77,7 @@ class BoxMain(MDBoxLayout):
         self.popup.open()
         self.go = go
         if not self.checkbox_auto.active and qlt == "best":
-            Thread(target=self.extrair_resols, args=(go,)).start()
+            Thread(target=self.search_resolutions, args=(go,)).start()
         else:
             self.popup.chk_vlc = True
             self.popup.open()
@@ -93,7 +89,7 @@ class BoxMain(MDBoxLayout):
             print(tmp)
             Popen(tmp, close_fds=True, shell=True)
 
-    def extrair_resols(self, go):
+    def search_resolutions(self, go):
         streamlink = Streamlink()
         streams = streamlink.streams(f"https://www.twitch.tv/{go}")
         list_resolution = [i for i in streams]
@@ -101,10 +97,10 @@ class BoxMain(MDBoxLayout):
             list_resolution.remove("worst")
         if "best" in list_resolution:
             list_resolution.remove("best")
-        self.select_resolution(list_r=list_resolution)
+        self.dialog_select_resolution(list_r=list_resolution)
 
     @mainthread
-    def select_resolution(self, list_r):
+    def dialog_select_resolution(self, list_r):
         self.popup.dismiss()
 
         self.list_item_confirm = [ItemConfirm(text=item) for item in list_r]
