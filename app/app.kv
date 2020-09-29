@@ -1,7 +1,6 @@
 ##:kivy
 #:import images_path kivymd.images_path
-#: set cor_borda 64/255, 0, 128/255, 1
-#: set cor_borda2 153/255, 51/255, 1, 1
+#: set cor_borda 153/255, 51/255, 1, 1
 <BoxMain>
     button_refresh: button_refresh
     button_bottomtop: button_bottomtop
@@ -119,7 +118,7 @@
 <ButtonImage@ButtonBehavior+AsyncImage>
     canvas:
         Color:
-            rgba: cor_borda2
+            rgba: cor_borda
         Line:
             rounded_rectangle: self.x, self.y, self.width, self.height, 10, 100
             width: 2
