@@ -47,7 +47,7 @@ class BoxMain(MDBoxLayout):
 
     def refresh_streams_on(self):
         self.popup.open()
-        if self.mod == "TEST":
+        if self.mod == "testing":
             self.load_grid_streams(fake_list_streams)
         else:
             UrlRequest(
