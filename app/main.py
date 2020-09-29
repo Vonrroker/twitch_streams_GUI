@@ -1,4 +1,5 @@
 from kivy.config import Config
+from os import environ
 
 Config.set("graphics", "window_state", "maximized")
 Config.set("graphics", "minimum_width", 683)
@@ -10,8 +11,7 @@ from boxmain import BoxMain
 
 class App(MDApp):
     title = "Streams no VLC"
-    # mod = "DEVELOPMENT"
-    mod = "TEST"
+    mod = environ.get("KIVY_ENV", default="production")
 
     def build(self):
         self.theme_cls.theme_style = "Dark"  # "Light"
