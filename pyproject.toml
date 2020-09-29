@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "twitch-streams-GUI"
+version = "0.1.0"
+description = ""
+authors = ["Dayham Soares <dayhamsoares@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+kivymd = "^0.104.1"
+streamlink = "^1.6.0"
+psutil = "^5.7.2"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+black = {version = "^20.8b1", allow-prereleases = true}
+pylama = "^7.7.1"
+ipdb = "^0.13.3"
+coverage = "^5.3"
+pyautogui = "^0.9.50"
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "error",
+    "ignore::DeprecationWarning",
+    # note the use of single quote below to denote "raw" strings in TOML
+    
+]
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
