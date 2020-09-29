@@ -1,150 +1,120 @@
 ##:kivy
+#:import images_path kivymd.images_path
 #: set cor_borda 64/255, 0, 128/255, 1
 #: set cor_borda2 153/255, 51/255, 1, 1
 <BoxMain>
+    button_refresh: button_refresh
+    button_bottomtop: button_bottomtop
+    checkbox_auto: checkbox_auto
+    scrollview_streams: scrollview_streams
+    grid_streams: grid_streams
     orientation: 'vertical'
     padding: 5, 5, 5, 5
-    canvas: 
-        Color: 
-            rgba: cor_borda
-        Line: 
-            rounded_rectangle: self.x, self.y, self.width, self.height, 10, 100
-            width: 4
-    BoxLayout: 
+    MDBoxLayout:
         orientation: 'horizontal'
-        size_hint_y: None
-        height: 60
-        padding: 8, 8, 8, 8
-        spacing: 30
-        Botao: 
-            id: btn_atualizar
-            text: 'Atualizar'
-            color: 1, 1, 1, 1
-            outline_color: 102/255, 0, 204/255
-            outline_width: 1
-            font_size: 18
-            on_release: app.root.atualizar()
-        UpDown: 
-            id: dwup
-            size_hint_x: None
-            width: 100
-            on_release: app.root.ids.scr.scroll_y = 0 if (app.root.ids.scr.vbar[0])>(1-(app.root.ids.scr.vbar[0]+app.root.ids.scr.vbar[1])) else 1
-        Label: 
-            text: 'Auto: '
-            font_size: 20
-            size_hint_x: None
-            size: self.texture_size
-        CheckBox: 
-            id: chkauto
-            size_hint_x: None
-            width: 30
-            active: True
+        adaptive_height: True
+        spacing: 10
+        Widget:
+        MDIconButton:
+            id: button_refresh
+            icon: "refresh"
+            on_release: app.root.refresh_streams_on()
+        MDBoxLayout:
+            orientation: 'horizontal'
+            adaptive_width: True
+            MDLabel:
+                text: 'Auto: '
+                font_size: 20
+                theme_text_color: "Primary"
+                adaptive_width: True
+                size: self.texture_size
+            CheckBox:
+                id: checkbox_auto
+                adaptive_width: True
+                active: True
+        MDIconButton:
+            id: button_bottomtop
+            icon: "arrow-up-down-bold-outline"
+        
 
-    ScrollView: 
-        id: scr
+    MDScrollViewRefreshLayout:
+        id: scrollview_streams
         scroll_wheel_distance: 50
-        BoxLayout: 
+        GridLayout:
+            id: grid_streams
             orientation: 'horizontal'
             size_hint_y: None
             height: self.minimum_height
             spacing: 15
             padding: 10, 10, 10, 10
-            BoxLayout: 
-                id: img1
-                orientation: 'vertical'
-                size_hint_y: None
-                height: self.minimum_height
-                spacing: 15
-            BoxLayout:
-                id: img2
-                orientation: 'vertical'
-                size_hint_y: None
-                height: self.minimum_height
-                spacing: 15
-            BoxLayout:
-                id: img3
-                orientation: 'vertical'
-                size_hint_y: None
-                height: self.minimum_height
-                spacing: 15
+            cols: 3
+            
+<BoxStream>
+    button_image_channel: button_image_channel
+    label_channel_infos: label_channel_infos
+    button_show_status: button_show_status
+    label_status: label_status
 
-<BoxImg>
     size_hint_y: None
-    BtnImagem:
-        id: asimg
-        on_release: app.root.play(root.stream)
-        on_release: self.color = 1, 1, 1, 1
-        on_press: self.color = .4, .4, .4, 1
-        Label: 
-            id: lbl
-            markup: True
-            height: 30
-            pos: self.parent.center_x-self.width/2, self.parent.y + self.parent.height - self.height
-            font_size: 20
-            bold: True
-            text_size: self.parent.width * 5/6, None
-            size: self.texture_size
-            halign: 'center'
-            on_ref_press: root.info()
-            outline_color: 97/255, 22/255, 120/255
-            outline_width: 2
+    RelativeLayout:
+        ButtonImage:
+            id: button_image_channel
+            on_release: app.root.play(root.stream)
+            on_release: self.color = 1, 1, 1, 1
+            on_press: self.color = .4, .4, .4, 1
+            MDLabel:
+                id: label_channel_infos
+                markup: True
+                height: 30
+                pos: self.parent.center_x-self.width/2, self.parent.height - self.height - 8
+                font_size: 20
+                bold: True
+                text_size: self.parent.width * 5/6, None
+                size: self.texture_size
+                halign: 'center'
+                outline_color: 97/255, 22/255, 120/255
+                outline_width: 2
+            MDLabel:
+                id: label_status
+                text: ''
+                pos: self.parent.center_x-self.width/2, self.parent.height -self.height - (2*self.parent.children[1].height)
+                font_size: 20
+                bold: True
+                text_size: self.parent.width * 5/6, None
+                size: self.texture_size
+                halign: 'center'
+                outline_color: 97/255, 22/255, 120/255
+                outline_width: 2
+        MDIconButton:
+            id: button_show_status
+            icon: "subdirectory-arrow-left"
+            pos: self.parent.width - self.width, self.parent.height - self.height
+            
 
-<UpDown@ButtonBehavior+Label>: 
-    canvas.before: 
-        Color: 
-            rgba: 0, .8, 0, 1
-        Triangle: 
-            points: (self.x, self.y+self.height/2, self.x+self.width/4, self.y+self.height, self.x+self.width/2, self.y+self.height/2)
-        Rectangle: 
-            size: self.width/6, self.height/2
-            pos: self.x+self.width/6, self.y
-        Color: 
-            rgba: .8, 0, 0, 1
-        Triangle: 
-            points: (self.x+self.width/2, self.y+self.height/2, self.x+self.width*3/4, self.y, self.x+self.width, self.y+self.height/2)
-        Rectangle: 
-            size: self.width/6, self.height/2
-            pos: self.x+self.width*2/3, self.y+self.height/2
+<Check@MDCheckbox>:
+    group: 'group'
+    size_hint: None, None
+    size: dp(48), dp(48)
 
-<Botao@ButtonBehavior+Label>
-    canvas.before: 
-        Color: 
-            rgba: 1, 1, 1, .9
-        Line: 
-            rounded_rectangle: self.x, self.y, self.width, self.height, 10, 100
-            width: 1.4
+<ItemConfirm>
+    checkbox_resolution: checkbox_resolution
+
+    Check:
+        id: checkbox_resolution
+        pos_hint: {'center_x': .6, 'center_y': .5}
+        
 
 <PopUpProgress>
     title: ''
-    background: 'assets/fundo_transparente.png'
+    background: '{}/transparent.png'.format(images_path)
     size_hint: (None, None)
     size: (300, 300)
     separator_height: 0
     auto_dismiss: False
-    CicleProgress:
-        id: pgb
+    MDSpinner:
 
-<PopUpResol>
-    title: 'Escolha a Qualidade'
-    size_hint: (None, None)
-    size: (250, 150)
-    separator_height: 0
-    title_align: 'center'
-    auto_dismiss: False
-    BoxLayout: 
-        orientation: 'vertical'
-        Spinner: 
-            id: spn
-            text: 'audio_only'
-            size_hint_y: None
-            height: 35
-        Button: 
-            text: 'Play'
-            size_hint_y: None
-            height: 35
-            on_release: app.root.play(root.go, root.ids.spn.text.replace('30',''))
 
-<BtnImagem@ButtonBehavior+AsyncImage>
+<ButtonImage@ButtonBehavior+AsyncImage>
     canvas:
         Color:
             rgba: cor_borda2
@@ -152,14 +122,3 @@
             rounded_rectangle: self.x, self.y, self.width, self.height, 10, 100
             width: 2
     allow_stretch: True
-
-<CicleProgress@ProgressBar>
-    canvas:
-        Clear
-        Color:
-            rgba: 0, .9, 0, .8
-        Line:
-            circle: self.center_x, self.center_y, self.height/4, 0, self.value
-            width: 6
-    max: 360
-    value: 1
