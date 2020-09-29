@@ -1,8 +1,13 @@
 from contextlib import contextmanager
+from kivy import lang
 from kivy.base import EventLoop
+from kivy.clock import Clock
 from kivy.tests.common import GraphicUnitTest, UnitTestTouch
+from config import envs
 
 from main import App
+
+root_path = envs["root_path"]
 
 
 @contextmanager
@@ -24,9 +29,9 @@ class BoxGraphicUnitTest(GraphicUnitTest):
         super().setUp(*args, **kwargs)
         app = App()
 
-        app.kv_directory = "/home/dayham/Desktop/Projetos/twitch-streams-GUI/app/"
+        app.kv_directory = f"{root_path}"
         app.kv_file = "app.kv"
-        app.mod = "TEST"
+        app.mod = "testing"
         app.load_kv()
 
         self.box = app.build()
@@ -34,6 +39,12 @@ class BoxGraphicUnitTest(GraphicUnitTest):
 
 
 class TestMyBox(BoxGraphicUnitTest):
+    def test_start_raw_app(self):
+        lang._delayed_start = None
+        a = App()
+        Clock.schedule_once(a.stop, 0.1)
+        a.run()
+
     def test_criacao_componentes_iniciais(self):
         with window_loop() as window:
             assert window.children[0] == self.box.scrollview_streams
@@ -56,7 +67,7 @@ class TestMyBox(BoxGraphicUnitTest):
     def test_press_icondownarrow_boximg_deve_mostrar_titulo_da_live(self):
         assert (
             self.box.grid_streams.children[0].label_channel_infos.text
-            == "Nick_name_13 - Nome do Jogo - 0"
+            == "Name_20 - Nome do Jogo_20 - 0"
         )
         assert self.box.grid_streams.children[0].label_status.text == ""
         # with touch(self.box.grid_streams.children[0].button_show_status.center):
