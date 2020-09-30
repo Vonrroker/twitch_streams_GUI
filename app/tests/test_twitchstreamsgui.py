@@ -4,6 +4,7 @@ from kivy.base import EventLoop
 from kivy.clock import Clock
 from kivy.tests.common import GraphicUnitTest, UnitTestTouch
 from config import envs
+import unittest
 
 from main import App
 
@@ -24,28 +25,24 @@ def window_loop():
     yield EventLoop.window.children[0]
 
 
-class BoxGraphicUnitTest(GraphicUnitTest):
-    def setUp(self, *args, **kwargs):
-        super().setUp(*args, **kwargs)
-        app = App()
+class TestMainBox(GraphicUnitTest):
+    app = App()
 
-        app.kv_directory = f"{root_path}"
-        app.kv_file = "app.kv"
-        app.mod = "testing"
-        app.load_kv()
+    app.kv_directory = f"{root_path}"
+    app.kv_file = "app.kv"
+    app.mod = "testing"
 
-        self.box = app.build()
-        self.render(self.box)
+    app.load_kv()
 
+    box = app.build()
 
-class TestMyBox(BoxGraphicUnitTest):
     def test_start_raw_app(self):
         lang._delayed_start = None
-        a = App()
-        Clock.schedule_once(a.stop, 0.1)
-        a.run()
+        Clock.schedule_once(self.app.stop, 0.1)
+        self.app.run()
 
     def test_criacao_componentes_iniciais(self):
+        self.render(self.box)
         with window_loop() as window:
             assert window.children[0] == self.box.scrollview_streams
             assert window.children[0].children[0] == self.box.grid_streams
@@ -69,6 +66,22 @@ class TestMyBox(BoxGraphicUnitTest):
             self.box.grid_streams.children[0].label_channel_infos.text
             == "Name_20 - Nome do Jogo_20 - 0"
         )
+
         assert self.box.grid_streams.children[0].label_status.text == ""
-        # with touch(self.box.grid_streams.children[0].button_show_status.center):
-        #     assert self.box.grid_streams.children[0].label_status.text == "Título da live_13"
+
+
+class GridLayoutTest(unittest.TestCase):
+    def test_gridlayout_get_max_widgets_with_3cols_rows(self):
+        app = App()
+
+        app.kv_directory = f"{root_path}"
+        app.kv_file = "app.kv"
+        app.mod = "testing"
+        app.load_kv()
+
+        box = app.build()
+        gl = box.grid_streams
+        gl.rows = 5
+        expected = 15
+        value = gl.get_max_widgets()
+        self.assertEqual(expected, value)
