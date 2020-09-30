@@ -18,6 +18,15 @@ ipdb = "^0.13.3"
 coverage = "^5.3"
 pyautogui = "^0.9.50"
 
+[tool.coverage.run]
+include = [
+    "app/main.py",
+    "app/boximg.py",
+    "app/boxmain.py",
+    "app/popupprogress.py",
+    "app/utils/serializer_list_streams.py"
+]
+
 [tool.pytest.ini_options]
 filterwarnings = [
     "error",
