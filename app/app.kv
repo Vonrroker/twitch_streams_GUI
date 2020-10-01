@@ -123,3 +123,21 @@
             rounded_rectangle: self.x, self.y, self.width, self.height, 10, 100
             width: 2
     allow_stretch: True
+
+
+<Content>
+    token: token
+    orientation: "vertical"
+    spacing: "12dp"
+    size_hint_y: None
+    height: "120dp"
+
+    MDLabel:
+        text: 'Acesse https://auth-token-stream.herokuapp.com/auth/twitch e cole abaixo o seu token:'
+        font_size: 20
+        theme_text_color: "Primary"
+        adaptive_width: True
+        size: self.texture_size
+    MDTextField:
+        id: token
+        hint_text: "token"
