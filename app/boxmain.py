@@ -1,9 +1,13 @@
+import sys
+from os import environ
 from subprocess import Popen
 from threading import Thread
 from psutil import process_iter
+import webbrowser
 from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.dialog import MDDialog
+from kivymd.uix.textfield import MDTextField
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.list import OneLineAvatarIconListItem
 from kivy.network.urlrequest import UrlRequest
@@ -13,9 +17,14 @@ from kivy.clock import Clock
 from kivy.properties import ObjectProperty
 from kivy.clock import mainthread
 from streamlink import Streamlink
-from credencial import cred
 from utils.serializer_list_streams import serializer
 from fakes.list_streams import fake_list_streams
+
+from config import envs
+
+
+class Content(BoxLayout):
+    ...
 
 
 class BoxMain(MDBoxLayout):
@@ -26,16 +35,53 @@ class BoxMain(MDBoxLayout):
     grid_streams = ObjectProperty(None)
     checkbox_resolution = ObjectProperty(None)
     list_streams_on = []
+    oauth_token = envs["oauth_token"]
+    client_id = envs["client_id"]
 
     def __init__(self, mod, **kwargs):
         super().__init__(**kwargs)
+        # self.popup_auth = PopUpAuth()
         self.mod = mod
         self.popup = PopUpProgress()
-        self.refresh_streams_on()
         self.button_bottomtop.bind(on_press=self.bottomtop)
-        self.scrollview_streams.bind(
-            on_scroll_stop=lambda *args: print(args[0].vbar[0])
+        # self.scrollview_streams.bind(
+        #     on_scroll_stop=lambda *args: print(args[0].vbar[0])
+        # )
+        if self.mod != "testing" and (not self.client_id or not self.oauth_token):
+            self.dialog_authenticate()
+        else:
+            self.refresh_streams_on()
+
+    @mainthread
+    def dialog_authenticate(self):
+        self.dialog_auth = PopUpAuth(
+            title="Entre no link para fazer a autenticação.",
+            type="custom",
+            content_cls=Content(),
+            auto_dismiss=False,
+            buttons=[
+                MDFlatButton(
+                    text="Fazer autenticação",
+                    on_release=self.authenticate,
+                ),
+                MDFlatButton(
+                    text="Abrir Url",
+                    on_release=lambda arg: webbrowser.open(
+                        "https://auth-token-stream.herokuapp.com/auth/twitch"
+                    ),
+                ),
+            ],
         )
+        self.dialog_auth.set_normal_height()
+        self.dialog_auth.open()
+
+    def authenticate(self, instance):
+        field_token = self.dialog_auth.content_cls.ids.token
+        print(field_token.text)
+        environ["OAUTH_TOKEN"] = field_token.text
+        self.oauth_token = field_token.text
+        self.refresh_streams_on()
+        self.dialog_auth.dismiss()
 
     def bottomtop(self, *args):
         if (self.scrollview_streams.vbar[0]) > (
@@ -49,13 +95,13 @@ class BoxMain(MDBoxLayout):
         self.popup.open()
         if self.mod == "testing":
             self.load_grid_streams(fake_list_streams)
-        else:
+        elif self.oauth_token:
             UrlRequest(
                 url="https://api.twitch.tv/kraken/streams/followed?limit=21",
                 req_headers={
                     "Accept": "application/vnd.twitchtv.v5+json",
-                    "Client-ID": cred["client_id"],
-                    "Authorization": f'OAuth {cred["oauth_token"]}',
+                    "Client-ID": self.client_id,
+                    "Authorization": f"OAuth {self.oauth_token}",
                 },
                 on_success=lambda *response: self.load_grid_streams(
                     serializer(response)
@@ -107,7 +153,6 @@ class BoxMain(MDBoxLayout):
 
         self.dialog = ResolDialog(
             title="Escolha resolução:",
-            # title.color=[0, 1, 0, 1],
             type="confirmation",
             size_hint=(0.7, 1),
             auto_dismiss=False,
@@ -201,3 +246,9 @@ class PopUpProgress(ModalView):
             self.dismiss()
             self.chk_vlc = False
             return False
+
+
+class PopUpAuth(MDDialog):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.ids.title.color = [1, 1, 1, 1]
