@@ -8,7 +8,7 @@ import unittest
 
 from main import App
 
-root_path = envs["root_path"]
+app_path = envs["app_path"]
 
 
 @contextmanager
@@ -28,7 +28,7 @@ def window_loop():
 class TestMainBox(GraphicUnitTest):
     app = App()
 
-    app.kv_directory = f"{root_path}"
+    app.kv_directory = f"{app_path}"
     app.kv_file = "app.kv"
     app.mod = "testing"
 
@@ -74,7 +74,7 @@ class GridLayoutTest(unittest.TestCase):
     def test_gridlayout_get_max_widgets_with_3cols_rows(self):
         app = App()
 
-        app.kv_directory = f"{root_path}"
+        app.kv_directory = f"{app_path}"
         app.kv_file = "app.kv"
         app.mod = "testing"
         app.load_kv()
