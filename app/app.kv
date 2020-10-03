@@ -127,10 +127,11 @@
 
 <Content>
     token: token
+    refresh_token: refresh_token
     orientation: "vertical"
     spacing: "12dp"
     size_hint_y: None
-    height: "120dp"
+    height: "200dp"
 
     MDLabel:
         text: 'Acesse https://auth-token-stream.herokuapp.com/auth/twitch e cole abaixo o seu token:'
@@ -141,3 +142,6 @@
     MDTextField:
         id: token
         hint_text: "token"
+    MDTextField:
+        id: refresh_token
+        hint_text: "refresh_token"
