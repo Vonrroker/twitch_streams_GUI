@@ -1,5 +1,6 @@
 ##:kivy
 #:import images_path kivymd.images_path
+#:import wb webbrowser
 #: set cor_borda 153/255, 51/255, 1, 1
 <BoxMain>
     button_refresh: button_refresh
@@ -134,11 +135,13 @@
     height: "200dp"
 
     MDLabel:
-        text: 'Acesse https://auth-token-stream.herokuapp.com/auth/twitch e cole abaixo o seu token:'
+        markup: True
+        text: 'Acesse [ref=url][u][color=#0000EE]https://auth-token-stream.herokuapp.com/auth/twitch[/color][/u][/ref] e insira as credenciais:'
         font_size: 20
         theme_text_color: "Primary"
         adaptive_width: True
         size: self.texture_size
+        on_ref_press: wb.open("https://auth-token-stream.herokuapp.com/auth/twitch")
     MDTextField:
         id: token
         hint_text: "token"
