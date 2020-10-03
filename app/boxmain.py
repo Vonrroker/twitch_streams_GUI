@@ -20,7 +20,7 @@ from streamlink import Streamlink
 from utils.serializer_list_streams import serializer
 from fakes.list_streams import fake_list_streams
 
-from config import envs
+from config import envs, set_token
 
 
 class Content(BoxLayout):
@@ -36,6 +36,7 @@ class BoxMain(MDBoxLayout):
     checkbox_resolution = ObjectProperty(None)
     list_streams_on = []
     oauth_token = envs["oauth_token"]
+    refresh_token = envs["refresh_token"]
     client_id = envs["client_id"]
 
     def __init__(self, mod, **kwargs):
@@ -75,13 +76,36 @@ class BoxMain(MDBoxLayout):
         self.dialog_auth.set_normal_height()
         self.dialog_auth.open()
 
-    def authenticate(self, instance):
-        field_token = self.dialog_auth.content_cls.ids.token
-        print(field_token.text)
-        environ["OAUTH_TOKEN"] = field_token.text
-        self.oauth_token = field_token.text
-        self.refresh_streams_on()
-        self.dialog_auth.dismiss()
+    def authenticate(self, instance, *args):
+        print(instance, args)
+        if args and args[0]["error"] == "Unauthorized":
+            print("refreshing token")
+            # {"access_token":"yk4mjinj88bhincc5o5d5a7f4zirdz",
+            # "expires_in":15011,
+            # "refresh_token":"q1h9wvay9xtfaywvrk7vm9ugsuitc4ti1iddc8n8ij2qe0uta9",
+            # "scope":["user_read"],
+            # "token_type":"bearer"}
+            UrlRequest(
+                url=f"https://auth-token-stream.herokuapp.com/refresh?refresh_token={self.refresh_token}",
+                on_success=lambda *args: set_token(
+                    access_token=args[1]["access_token"],
+                    refresh_token=args[1]["refresh_token"],
+                ),
+            )
+            self.oauth_token = environ["OAUTH_TOKEN"]
+            self.refresh_token = environ["REFRESH_TOKEN"]
+            self.refresh_streams_on()
+        else:
+            field_token = self.dialog_auth.content_cls.ids.token
+            field_refresh_token = self.dialog_auth.content_cls.ids.refresh_token
+            print(field_token.text)
+            set_token(
+                access_token=field_token.text, refresh_token=field_refresh_token.text
+            )
+            self.oauth_token = environ["OAUTH_TOKEN"]
+            self.refresh_token = environ["REFRESH_TOKEN"]
+            self.refresh_streams_on()
+            self.dialog_auth.dismiss()
 
     def bottomtop(self, *args):
         if (self.scrollview_streams.vbar[0]) > (
@@ -106,7 +130,7 @@ class BoxMain(MDBoxLayout):
                 on_success=lambda *response: self.load_grid_streams(
                     serializer(response)
                 ),
-                on_failure=lambda *response: print(response),
+                on_failure=self.authenticate,
             )
 
     def load_grid_streams(self, list_data_streams):
