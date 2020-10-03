@@ -2,7 +2,7 @@ from kivy.config import Config
 from os import environ
 
 Config.set("graphics", "window_state", "maximized")
-Config.set("graphics", "minimum_width", 683)
+Config.set("graphics", "minimum_width", 800)
 Config.set("graphics", "minimum_height", 384)
 
 from kivymd.app import MDApp
