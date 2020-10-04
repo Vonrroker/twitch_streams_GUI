@@ -105,6 +105,11 @@
         pos_hint: {'center_x': .6, 'center_y': .5}
         
 
+<PopUpAuth>
+    title: "Entre no link para fazer a autenticação."
+    type: "custom"
+    auto_dismiss: False
+
 <PopUpProgress>
     title: ''
     background: '{}/transparent.png'.format(images_path)
@@ -135,7 +140,7 @@
 
     MDLabel:
         markup: True
-        text: 'Acesse [ref=url][u][color=#0000EE]https://auth-token-stream.herokuapp.com/auth/twitch[/color][/u][/ref] e insira as credenciais:'
+        text: 'Acesse [ref=url][u][color=#00aaaa]https://auth-token-stream.herokuapp.com/auth/twitch[/color][/u][/ref] e insira as credenciais:'
         font_size: 20
         theme_text_color: "Primary"
         adaptive_width: True
