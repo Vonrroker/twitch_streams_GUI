@@ -57,10 +57,7 @@ class BoxMain(MDBoxLayout):
     @mainthread
     def dialog_authenticate(self):
         self.dialog_auth = PopUpAuth(
-            title="Entre no link para fazer a autenticação.",
-            type="custom",
             content_cls=Content(),
-            auto_dismiss=False,
             buttons=[
                 MDFlatButton(
                     text="Fazer autenticação",
