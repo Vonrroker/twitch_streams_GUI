@@ -4,6 +4,7 @@ from subprocess import Popen
 from threading import Thread
 from psutil import process_iter
 import webbrowser
+from json import loads
 from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.dialog import MDDialog
@@ -35,8 +36,8 @@ class BoxMain(MDBoxLayout):
     grid_streams = ObjectProperty(None)
     checkbox_resolution = ObjectProperty(None)
     list_streams_on = []
-    oauth_token = envs["oauth_token"]
-    refresh_token = envs["refresh_token"]
+    oauth_token = environ["OAUTH_TOKEN"]
+    refresh_token = environ["REFRESH_TOKEN"]
     client_id = envs["client_id"]
 
     def __init__(self, mod, **kwargs):
@@ -80,32 +81,38 @@ class BoxMain(MDBoxLayout):
         print(instance, args)
         if args and args[0]["error"] == "Unauthorized":
             print("refreshing token")
-            # {"access_token":"yk4mjinj88bhincc5o5d5a7f4zirdz",
-            # "expires_in":15011,
-            # "refresh_token":"q1h9wvay9xtfaywvrk7vm9ugsuitc4ti1iddc8n8ij2qe0uta9",
-            # "scope":["user_read"],
-            # "token_type":"bearer"}
             UrlRequest(
                 url=f"https://auth-token-stream.herokuapp.com/refresh?refresh_token={self.refresh_token}",
-                on_success=lambda *args: set_token(
-                    access_token=args[1]["access_token"],
-                    refresh_token=args[1]["refresh_token"],
+                on_success=lambda req, result: self.save_token(
+                    instance=req, data=result
                 ),
             )
-            self.oauth_token = environ["OAUTH_TOKEN"]
-            self.refresh_token = environ["REFRESH_TOKEN"]
-            self.refresh_streams_on()
         else:
             field_token = self.dialog_auth.content_cls.ids.token
             field_refresh_token = self.dialog_auth.content_cls.ids.refresh_token
             print(field_token.text)
-            set_token(
-                access_token=field_token.text, refresh_token=field_refresh_token.text
+            self.save_token(
+                data={
+                    "access_token": field_token.text,
+                    "refresh_token": field_refresh_token.text,
+                }
             )
-            self.oauth_token = environ["OAUTH_TOKEN"]
-            self.refresh_token = environ["REFRESH_TOKEN"]
-            self.refresh_streams_on()
             self.dialog_auth.dismiss()
+
+    def save_token(self, *, instance=None, data):
+        print(instance, data)
+        if isinstance(data, str):
+            response = loads(data)
+        else:
+            response = data
+
+        set_token(
+            access_token=response["access_token"],
+            refresh_token=response["refresh_token"],
+        )
+        self.oauth_token = response["access_token"]
+        self.refresh_token = response["refresh_token"]
+        self.refresh_streams_on()
 
     def bottomtop(self, *args):
         if (self.scrollview_streams.vbar[0]) > (
@@ -120,8 +127,9 @@ class BoxMain(MDBoxLayout):
         if self.mod == "testing":
             self.load_grid_streams(fake_list_streams)
         elif self.oauth_token:
+            print(f"Resquest refresh_streams_on com {self.oauth_token}")
             UrlRequest(
-                url="https://api.twitch.tv/kraken/streams/followed?limit=21",
+                url="https://api.twitch.tv/kraken/streams/followed?stream_type=live&limit=100",
                 req_headers={
                     "Accept": "application/vnd.twitchtv.v5+json",
                     "Client-ID": self.client_id,
@@ -140,7 +148,7 @@ class BoxMain(MDBoxLayout):
 
         self.grid_streams.clear_widgets()
 
-        for stream in self.list_streams_on:
+        for stream in self.list_streams_on[:30]:
             self.grid_streams.add_widget(BoxStream(channel_data=stream))
 
     def play(self, go: str, qlt="best"):
