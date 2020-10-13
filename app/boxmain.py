@@ -18,7 +18,7 @@ from kivy.clock import Clock
 from kivy.properties import ObjectProperty
 from kivy.clock import mainthread
 from streamlink import Streamlink
-from utils.serializer_list_streams import serializer
+from utils.parser_streams import parser
 from fakes.list_streams import fake_list_streams
 
 from config import envs, set_token
@@ -132,9 +132,7 @@ class BoxMain(MDBoxLayout):
                     "Client-ID": self.client_id,
                     "Authorization": f"OAuth {self.oauth_token}",
                 },
-                on_success=lambda *response: self.load_grid_streams(
-                    serializer(response)
-                ),
+                on_success=lambda *response: self.load_grid_streams(parser(response)),
                 on_failure=self.authenticate,
             )
 
