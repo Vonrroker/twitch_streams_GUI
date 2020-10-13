@@ -1,4 +1,4 @@
-def serializer(stream_data):
+def parser(stream_data):
     streams = stream_data[1]["streams"]
     list_streams_on = [
         {
