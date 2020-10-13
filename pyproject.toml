@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "twitch-streams-GUI"
 version = "0.1.0"
-description = ""
+description = "App desktop desenvolvido em python e com a interface feita em KivyMD"
 authors = ["Dayham Soares <dayhamsoares@gmail.com>"]
 
 [tool.poetry.dependencies]
