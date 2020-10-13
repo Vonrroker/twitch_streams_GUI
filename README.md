@@ -1,9 +1,9 @@
 # Twitch Streams GUI
 
-App desktop desenvolvido em python e com a interface feita em KivyMD.
+App desktop desenvolvido em python e com a interface feita em [KivyMD](https://github.com/kivymd/KivyMD).
 
 O programa exibe na tela todas streams ao vivo seguidas pelo usuário, e permite
-assistir uma live no reprodutor de vídeo Vlc.
+assistir uma live no reprodutor de vídeo [VLC](https://www.videolan.org/vlc/#download).
 
 ![image](app/fakes/twitch_streams.jpg?raw=true)
 
