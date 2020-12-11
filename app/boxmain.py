@@ -15,7 +15,7 @@ from kivy.network.urlrequest import UrlRequest
 from kivy.core.window import Window
 from kivymd.uix.dialog import ModalView
 from kivy.clock import Clock
-from kivy.properties import ObjectProperty
+from kivy.properties import ObjectProperty, ListProperty
 from kivy.clock import mainthread
 from streamlink import Streamlink
 from utils.parser_streams import parser
@@ -35,7 +35,7 @@ class BoxMain(MDBoxLayout):
     scrollview_streams = ObjectProperty(None)
     grid_streams = ObjectProperty(None)
     checkbox_resolution = ObjectProperty(None)
-    list_streams_on = []
+    list_streams_on = ListProperty()
     oauth_token = environ["OAUTH_TOKEN"]
     refresh_token = environ["REFRESH_TOKEN"]
     client_id = envs["client_id"]
@@ -46,13 +46,21 @@ class BoxMain(MDBoxLayout):
         self.mod = mod
         self.popup = PopUpProgress()
         self.button_bottomtop.bind(on_press=self.bottomtop)
-        # self.scrollview_streams.bind(
-        #     on_scroll_stop=lambda *args: print(args[0].vbar[0])
-        # )
+        self.scrollview_streams.bind(on_scroll_stop=self.add_more_streams)
         if self.mod != "testing" and (not self.client_id or not self.oauth_token):
             self.dialog_authenticate()
         else:
             self.refresh_streams_on()
+
+    def add_more_streams(self, instance, value):
+        # print(instance.vbar[0])
+        scroll_pos = instance.vbar[0]
+        grid_size = len(self.grid_streams.children)
+        if scroll_pos < 0.00001 and grid_size < len(self.list_streams_on):
+            print(str(grid_size))
+            print(str(len(self.list_streams_on)))
+            for stream in self.list_streams_on[grid_size : grid_size + 9]:
+                self.grid_streams.add_widget(BoxStream(channel_data=stream))
 
     @mainthread
     def dialog_authenticate(self):
@@ -120,6 +128,7 @@ class BoxMain(MDBoxLayout):
             self.scrollview_streams.scroll_y = 1
 
     def refresh_streams_on(self):
+        self.list_streams_on.clear()
         self.popup.open()
         if self.mod == "testing":
             self.load_grid_streams(fake_list_streams)
@@ -132,14 +141,14 @@ class BoxMain(MDBoxLayout):
                     "Client-ID": self.client_id,
                     "Authorization": f"OAuth {self.oauth_token}",
                 },
-                on_success=lambda *response: self.load_grid_streams(parser(response)),
+                on_success=lambda *response: self.list_streams_on.extend(
+                    parser(response)
+                ),
                 on_failure=self.authenticate,
             )
 
-    def load_grid_streams(self, list_data_streams):
+    def on_list_streams_on(self, instance, value):
         self.popup.dismiss()
-
-        self.list_streams_on = list_data_streams
 
         self.grid_streams.clear_widgets()
 
