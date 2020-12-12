@@ -14,9 +14,8 @@ from kivymd.uix.list import OneLineAvatarIconListItem
 from kivy.network.urlrequest import UrlRequest
 from kivy.core.window import Window
 from kivymd.uix.dialog import ModalView
-from kivy.clock import Clock
+from kivy.clock import Clock, mainthread
 from kivy.properties import ObjectProperty, ListProperty
-from kivy.clock import mainthread
 from streamlink import Streamlink
 from utils.parser_streams import parser
 from fakes.list_streams import fake_list_streams
@@ -83,7 +82,7 @@ class BoxMain(MDBoxLayout):
         self.dialog_auth.open()
 
     def authenticate(self, instance, *args):
-        print(instance, args)
+        # print(instance, args)
         if args and args[0]["error"] == "Unauthorized":
             print("refreshing token")
             UrlRequest(
@@ -93,19 +92,20 @@ class BoxMain(MDBoxLayout):
                 ),
             )
         else:
-            field_token = self.dialog_auth.content_cls.ids.token
-            field_refresh_token = self.dialog_auth.content_cls.ids.refresh_token
-            print(field_token.text)
+            (
+                field_token,
+                field_refresh_token,
+            ) = self.dialog_auth.content_cls.ids.token.text.split(".")
             self.save_token(
                 data={
-                    "access_token": field_token.text,
-                    "refresh_token": field_refresh_token.text,
+                    "access_token": field_token,
+                    "refresh_token": field_refresh_token,
                 }
             )
             self.dialog_auth.dismiss()
 
     def save_token(self, *, instance=None, data):
-        print(instance, data)
+        # print(instance, data)
         if isinstance(data, str):
             response = loads(data)
         else:

@@ -132,7 +132,6 @@
 
 <Content>
     token: token
-    refresh_token: refresh_token
     orientation: "vertical"
     spacing: "12dp"
     size_hint_y: None
@@ -148,7 +147,5 @@
         on_ref_press: wb.open("https://auth-token-stream.herokuapp.com/auth/twitch")
     MDTextField:
         id: token
-        hint_text: "token"
-    MDTextField:
-        id: refresh_token
-        hint_text: "refresh_token"
+        hint_text: "Chave de autenticação"
+   

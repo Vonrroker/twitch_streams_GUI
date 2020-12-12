@@ -14,7 +14,6 @@ envs = {
 
 def set_token(access_token, refresh_token):
     print(f"Salvando tokens em {env_path}")
-    print(access_token, refresh_token)
     with open(env_path, "w") as f:
         f.write(f"OAUTH_TOKEN={access_token}\n")
         f.write(f"REFRESH_TOKEN={refresh_token}")
