@@ -35,8 +35,8 @@ class BoxMain(MDBoxLayout):
     grid_streams = ObjectProperty(None)
     checkbox_resolution = ObjectProperty(None)
     list_streams_on = ListProperty()
-    oauth_token = environ["OAUTH_TOKEN"]
-    refresh_token = environ["REFRESH_TOKEN"]
+    oauth_token = environ.get("OAUTH_TOKEN", default="")
+    refresh_token = environ.get("REFRESH_TOKEN", default="")
     client_id = envs["client_id"]
 
     def __init__(self, mod, **kwargs):
@@ -56,8 +56,6 @@ class BoxMain(MDBoxLayout):
         scroll_pos = instance.vbar[0]
         grid_size = len(self.grid_streams.children)
         if scroll_pos < 0.00001 and grid_size < len(self.list_streams_on):
-            print(str(grid_size))
-            print(str(len(self.list_streams_on)))
             for stream in self.list_streams_on[grid_size : grid_size + 9]:
                 self.grid_streams.add_widget(BoxStream(channel_data=stream))
 
@@ -133,7 +131,7 @@ class BoxMain(MDBoxLayout):
         if self.mod == "testing":
             self.load_grid_streams(fake_list_streams)
         elif self.oauth_token:
-            print(f"Resquest refresh_streams_on com {self.oauth_token}")
+            print("Resquest refresh_streams_on")
             UrlRequest(
                 url="https://api.twitch.tv/kraken/streams/followed?stream_type=live&limit=100",
                 req_headers={
