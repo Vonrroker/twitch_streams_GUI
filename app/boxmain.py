@@ -23,10 +23,6 @@ from fakes.list_streams import fake_list_streams
 from config import envs, set_token
 
 
-class Content(BoxLayout):
-    ...
-
-
 class BoxMain(MDBoxLayout):
     button_refresh = ObjectProperty(None)
     button_bottomtop = ObjectProperty(None)
@@ -129,7 +125,7 @@ class BoxMain(MDBoxLayout):
         self.list_streams_on.clear()
         self.popup.open()
         if self.mod == "testing":
-            self.load_grid_streams(fake_list_streams)
+            self.list_streams_on.extend(fake_list_streams)
         elif self.oauth_token:
             print("Resquest refresh_streams_on")
             UrlRequest(
@@ -286,3 +282,7 @@ class PopUpAuth(MDDialog):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.ids.title.color = [1, 1, 1, 1]
+
+
+class Content(BoxLayout):
+    ...
