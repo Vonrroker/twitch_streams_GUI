@@ -5,7 +5,6 @@ from threading import Thread
 from psutil import process_iter
 import webbrowser
 from json import loads
-from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.textfield import MDTextField
@@ -215,7 +214,7 @@ class ResolDialog(MDDialog):
         self.ids.title.color = [1, 1, 1, 1]
 
 
-class BoxStream(BoxLayout):
+class BoxStream(MDBoxLayout):
     button_image_channel = ObjectProperty(None)
     label_channel_infos = ObjectProperty(None)
     button_show_status = ObjectProperty(None)
@@ -284,5 +283,5 @@ class PopUpAuth(MDDialog):
         self.ids.title.color = [1, 1, 1, 1]
 
 
-class Content(BoxLayout):
+class Content(MDBoxLayout):
     ...

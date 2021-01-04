@@ -10,6 +10,8 @@ kivymd = "^0.104.1"
 streamlink = "^1.6.0"
 psutil = "^5.7.2"
 python-dotenv = "^0.14.0"
+Pillow = "^8.1.0"
+Kivy = "^2.0.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
