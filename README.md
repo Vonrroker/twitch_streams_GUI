@@ -7,6 +7,13 @@ assistir uma live no reprodutor de vídeo [VLC](https://www.videolan.org/vlc/#do
 
 ![image](app/fakes/twitch_streams.jpg?raw=true)
 
+## Baixar projeto
+
+```
+git clone https://github.com/Vonrroker/twitch_streams_GUI.git
+cd twitch_streams_GUI/
+```
+
 ## Instalar dependencias
 
 ```
