@@ -18,6 +18,7 @@ pytest = "^5.2"
 black = {version = "^20.8b1", allow-prereleases = true}
 ipdb = "^0.13.3"
 coverage = "^5.3"
+importanize = "^0.7.0"
 
 [tool.coverage.run]
 include = [
