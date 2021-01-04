@@ -10,7 +10,6 @@ assistir uma live no reprodutor de vídeo [VLC](https://www.videolan.org/vlc/#do
 ## Instalar dependencias
 
 ```
-pyenv local python 3.7.9
 poetry install
 ```
 
