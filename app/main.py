@@ -1,5 +1,5 @@
-from kivy.config import Config
 from os import environ
+from kivy.config import Config
 
 Config.set("graphics", "window_state", "maximized")
 Config.set("graphics", "minimum_width", 800)

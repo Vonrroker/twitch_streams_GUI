@@ -1,12 +1,14 @@
+import unittest
 from contextlib import contextmanager
+
 from kivy import lang
 from kivy.base import EventLoop
 from kivy.clock import Clock
 from kivy.tests.common import GraphicUnitTest, UnitTestTouch
-from config import envs
-import unittest
 
+from config import envs
 from main import App
+
 
 app_path = envs["app_path"]
 
