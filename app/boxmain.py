@@ -21,6 +21,8 @@ from config import envs, set_token
 from fakes.list_streams import fake_list_streams
 from utils.parser_streams import parser
 
+base_auth_url = "https://auth-token-stream.herokuapp.com"
+
 
 class BoxMain(MDBoxLayout):
     button_refresh = ObjectProperty(None)
@@ -66,7 +68,7 @@ class BoxMain(MDBoxLayout):
                 MDFlatButton(
                     text="Abrir Url",
                     on_release=lambda arg: webbrowser.open(
-                        "https://auth-token-stream.herokuapp.com/auth/twitch"
+                        f"{base_auth_url}/auth/twitch"
                     ),
                 ),
             ],
@@ -79,7 +81,7 @@ class BoxMain(MDBoxLayout):
         if args and args[0]["error"] == "Unauthorized":
             print("refreshing token")
             UrlRequest(
-                url=f"https://auth-token-stream.herokuapp.com/refresh?refresh_token={self.refresh_token}",
+                url=f"{base_auth_url}/refresh?refresh_token={self.refresh_token}",
                 on_success=lambda req, result: self.save_token(
                     instance=req, data=result
                 ),
