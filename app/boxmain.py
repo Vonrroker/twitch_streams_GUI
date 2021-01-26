@@ -1,25 +1,27 @@
 import sys
+import webbrowser
+from json import loads
 from os import environ
 from subprocess import Popen
 from threading import Thread
-from psutil import process_iter
-import webbrowser
-from json import loads
-from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.dialog import MDDialog
-from kivymd.uix.textfield import MDTextField
-from kivymd.uix.button import MDFlatButton
-from kivymd.uix.list import OneLineAvatarIconListItem
-from kivy.network.urlrequest import UrlRequest
-from kivy.core.window import Window
-from kivymd.uix.dialog import ModalView
+
 from kivy.clock import Clock, mainthread
-from kivy.properties import ObjectProperty, ListProperty
+from kivy.core.window import Window
+from kivy.network.urlrequest import UrlRequest
+from kivy.properties import ListProperty, ObjectProperty
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.button import MDFlatButton
+from kivymd.uix.dialog import MDDialog, ModalView
+from kivymd.uix.list import OneLineAvatarIconListItem
+from kivymd.uix.textfield import MDTextField
+from psutil import process_iter
 from streamlink import Streamlink
-from utils.parser_streams import parser
-from fakes.list_streams import fake_list_streams
 
 from config import envs, set_token
+from fakes.list_streams import fake_list_streams
+from utils.parser_streams import parser
+
+base_auth_url = "https://auth-token-stream.herokuapp.com"
 
 
 class BoxMain(MDBoxLayout):
@@ -66,7 +68,7 @@ class BoxMain(MDBoxLayout):
                 MDFlatButton(
                     text="Abrir Url",
                     on_release=lambda arg: webbrowser.open(
-                        "https://auth-token-stream.herokuapp.com/auth/twitch"
+                        f"{base_auth_url}/auth/twitch"
                     ),
                 ),
             ],
@@ -79,7 +81,7 @@ class BoxMain(MDBoxLayout):
         if args and args[0]["error"] == "Unauthorized":
             print("refreshing token")
             UrlRequest(
-                url=f"https://auth-token-stream.herokuapp.com/refresh?refresh_token={self.refresh_token}",
+                url=f"{base_auth_url}/refresh?refresh_token={self.refresh_token}",
                 on_success=lambda req, result: self.save_token(
                     instance=req, data=result
                 ),
