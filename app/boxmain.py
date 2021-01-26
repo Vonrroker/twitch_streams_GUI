@@ -251,7 +251,7 @@ class PopUpProgress(ModalView):
         super().__init__(**kwargs)
         self.chk_vlc = chk_vlc
 
-        proc = [x.info["name"] for x in process_iter(["name"])]
+        proc = [x.info["name"].replace(".exe","") for x in process_iter(["name"])]
 
         self.vlcs = proc.count("vlc")
 
@@ -259,7 +259,7 @@ class PopUpProgress(ModalView):
         if self.chk_vlc:
             Clock.schedule_interval(self.next, 0.1)
 
-        proc = [x.info["name"] for x in process_iter(["name"])]
+        proc = [x.info["name"].replace(".exe","") for x in process_iter(["name"])]
         checking = proc.count("vlc")
 
         if checking != self.vlcs:
@@ -268,7 +268,7 @@ class PopUpProgress(ModalView):
             return False
 
     def next(self, dt):
-        proc = [x.info["name"] for x in process_iter(["name"])]
+        proc = [x.info["name"].replace(".exe","") for x in process_iter(["name"])]
         checking = proc.count("vlc")
 
         if checking != self.vlcs:
