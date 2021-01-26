@@ -5,7 +5,7 @@ description = "App desktop desenvolvido em python e com a interface feita em Kiv
 authors = ["Dayham Soares <dayhamsoares@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.9"
 kivymd = "^0.104.1"
 streamlink = "^2.0.0"
 psutil = "^5.7.2"
