@@ -5,6 +5,7 @@ from os import environ
 from subprocess import Popen
 from threading import Thread
 
+from kivy.lang import Builder
 from kivy.clock import Clock, mainthread
 from kivy.core.window import Window
 from kivy.network.urlrequest import UrlRequest
@@ -22,6 +23,12 @@ from fakes.list_streams import fake_list_streams
 from utils.parser_streams import parser
 
 base_auth_url = "https://auth-token-stream.herokuapp.com"
+
+app_path = envs["app_path"]
+kv_path = f"{app_path}/app.kv"
+
+
+Builder.load_file(kv_path)
 
 
 class BoxMain(MDBoxLayout):
@@ -73,11 +80,11 @@ class BoxMain(MDBoxLayout):
                 ),
             ],
         )
-        self.dialog_auth.set_normal_height()
+        # self.dialog_auth.set_normal_height()
         self.dialog_auth.open()
 
     def authenticate(self, instance, *args):
-        # print(instance, args)
+        print(instance, args)
         if args and args[0]["error"] == "Unauthorized":
             print("refreshing token")
             UrlRequest(
@@ -85,6 +92,7 @@ class BoxMain(MDBoxLayout):
                 on_success=lambda req, result: self.save_token(
                     instance=req, data=result
                 ),
+                on_failure=lambda req, result: print("fail"),
             )
         else:
             (
@@ -100,11 +108,14 @@ class BoxMain(MDBoxLayout):
             self.dialog_auth.dismiss()
 
     def save_token(self, *, instance=None, data):
-        # print(instance, data)
+        print(instance, data)
         if isinstance(data, str):
             response = loads(data)
         else:
             response = data
+
+        if "message" in response and response["message"] == "Invalid refresh token":
+            return self.dialog_authenticate()
 
         set_token(
             access_token=response["access_token"],
@@ -224,7 +235,6 @@ class BoxStream(MDBoxLayout):
 
     def __init__(self, channel_data, **kwargs):
         super().__init__(**kwargs)
-        self.button_show_status.bind(on_press=self.info)
         self.height = ((Window.size[0] - 60) / 3) / 1.81
         self.status = channel_data["channel_status"]
         self.stream = channel_data["channel_name"]
@@ -237,7 +247,8 @@ class BoxStream(MDBoxLayout):
 
         Window.bind(on_resize=self.resize)
 
-    def info(self, instance):
+    def info(self, *args):
+        print("\n\n#########\n\n")
         if self.status in self.label_status.text:
             self.label_status.text = ""
 
@@ -253,7 +264,7 @@ class PopUpProgress(ModalView):
         super().__init__(**kwargs)
         self.chk_vlc = chk_vlc
 
-        proc = [x.info["name"].replace(".exe","") for x in process_iter(["name"])]
+        proc = [x.info["name"].replace(".exe", "") for x in process_iter(["name"])]
 
         self.vlcs = proc.count("vlc")
 
@@ -261,7 +272,7 @@ class PopUpProgress(ModalView):
         if self.chk_vlc:
             Clock.schedule_interval(self.next, 0.1)
 
-        proc = [x.info["name"].replace(".exe","") for x in process_iter(["name"])]
+        proc = [x.info["name"].replace(".exe", "") for x in process_iter(["name"])]
         checking = proc.count("vlc")
 
         if checking != self.vlcs:
@@ -270,7 +281,7 @@ class PopUpProgress(ModalView):
             return False
 
     def next(self, dt):
-        proc = [x.info["name"].replace(".exe","") for x in process_iter(["name"])]
+        proc = [x.info["name"].replace(".exe", "") for x in process_iter(["name"])]
         checking = proc.count("vlc")
 
         if checking != self.vlcs:

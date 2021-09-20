@@ -9,7 +9,7 @@ from kivymd.app import MDApp
 from boxmain import BoxMain
 
 
-class App(MDApp):
+class MyApp(MDApp):
     title = "Streams no VLC"
     mod = environ.get("KIVY_ENV", default="production")
 
@@ -19,4 +19,4 @@ class App(MDApp):
 
 
 if __name__ == "__main__":
-    App().run()
+    MyApp().run()
