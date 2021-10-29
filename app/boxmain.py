@@ -14,21 +14,22 @@ from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog, ModalView
 from kivymd.uix.list import OneLineAvatarIconListItem
+from app.components.BoxStream.box_stream import BoxStream
 from kivymd.uix.textfield import MDTextField
 from psutil import process_iter
 from streamlink import Streamlink
 
-from config import envs, set_token
-from fakes.list_streams import fake_list_streams
-from utils.parser_streams import parser
+from app.config import envs, set_token
+from app.fakes.list_streams import fake_list_streams
+from app.utils.parser_streams import parser
 
 base_auth_url = "https://auth-token-stream.herokuapp.com"
 
-app_path = envs["app_path"]
-kv_path = f"{app_path}/app.kv"
+# app_path = envs["app_path"]
+# kv_path = f"{app_path}/app.kv"
 
 
-Builder.load_file(kv_path)
+# Builder.load_file(kv_path)
 
 
 class BoxMain(MDBoxLayout):
@@ -227,36 +228,36 @@ class ResolDialog(MDDialog):
         self.ids.title.color = [1, 1, 1, 1]
 
 
-class BoxStream(MDBoxLayout):
-    button_image_channel = ObjectProperty(None)
-    label_channel_infos = ObjectProperty(None)
-    button_show_status = ObjectProperty(None)
-    label_status = ObjectProperty(None)
+# class BoxStream(MDBoxLayout):
+#     button_image_channel = ObjectProperty(None)
+#     label_channel_infos = ObjectProperty(None)
+#     button_show_status = ObjectProperty(None)
+#     label_status = ObjectProperty(None)
 
-    def __init__(self, channel_data, **kwargs):
-        super().__init__(**kwargs)
-        self.height = ((Window.size[0] - 60) / 3) / 1.81
-        self.status = channel_data["channel_status"]
-        self.stream = channel_data["channel_name"]
-        self.button_image_channel.source = channel_data["preview_img"]
-        self.label_channel_infos.text = "{} - {} - {:,}".format(
-            channel_data["channel_name"].capitalize(),
-            channel_data["game"],
-            channel_data["viewers"],
-        ).replace(",", ".")
+#     def __init__(self, channel_data, **kwargs):
+#         super().__init__(**kwargs)
+#         self.height = ((Window.size[0] - 60) / 3) / 1.81
+#         self.status = channel_data["channel_status"]
+#         self.stream = channel_data["channel_name"]
+#         self.button_image_channel.source = channel_data["preview_img"]
+#         self.label_channel_infos.text = "{} - {} - {:,}".format(
+#             channel_data["channel_name"].capitalize(),
+#             channel_data["game"],
+#             channel_data["viewers"],
+#         ).replace(",", ".")
 
-        Window.bind(on_resize=self.resize)
+#         Window.bind(on_resize=self.resize)
 
-    def info(self, *args):
-        print("\n\n#########\n\n")
-        if self.status in self.label_status.text:
-            self.label_status.text = ""
+#     def info(self, *args):
+#         print("\n\n#########\n\n")
+#         if self.status in self.label_status.text:
+#             self.label_status.text = ""
 
-        else:
-            self.label_status.text = self.status
+#         else:
+#             self.label_status.text = self.status
 
-    def resize(self, *args):
-        self.height = ((Window.size[0] - 60) / 3) / 1.81
+#     def resize(self, *args):
+#         self.height = ((Window.size[0] - 60) / 3) / 1.81
 
 
 class PopUpProgress(ModalView):

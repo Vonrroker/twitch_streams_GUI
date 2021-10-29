@@ -49,52 +49,52 @@
             padding: 10, 10, 10, 10
             cols: 3
             
-<BoxStream>
-    button_image_channel: button_image_channel
-    label_channel_infos: label_channel_infos
-    button_show_status: button_show_status
-    label_status: label_status
-    button_play_stream: button_play_stream
+#<BoxStream>
+#    button_image_channel: button_image_channel
+#    label_channel_infos: label_channel_infos
+#    button_show_status: button_show_status
+#    label_status: label_status
+#    button_play_stream: button_play_stream
 
-    size_hint_y: None
-    RelativeLayout:
-        ButtonImage:
-            id: button_image_channel
-            MDLabel:
-                id: label_channel_infos
-                markup: True
-                height: 30
-                pos: self.parent.center_x-self.width/2, self.parent.height - self.height - 8
-                font_size: 18
-                bold: True
-                theme_text_color: "Primary"
-                text_size: self.parent.width * 5/6, None
-                size: self.texture_size
-                halign: 'center'
-                outline_color: 97/255, 22/255, 120/255
-                outline_width: 1.5
-            Label:
-                id: label_status
-                text: ''
-                pos: self.parent.center_x-self.width/2, self.parent.height -self.height - (2*self.parent.children[1].height)
-                font_size: 18
-                bold: True
-                text_size: self.parent.width * 5/6, None
-                size: self.texture_size
-                halign: 'center'
-                outline_color: 97/255, 22/255, 120/255
-                outline_width: 1.5
-        MDIconButton:
-            id: button_show_status
-            icon: "subdirectory-arrow-left"
-            on_release: root.info()
-            pos: self.parent.width - self.width, self.parent.height - self.height
-        MDIconButton:
-            id: button_play_stream
-            icon: "play-circle-outline"
-            on_release: app.root.play(root.stream)
-            user_font_size: "50dp"
-            # pos: self.parent.width - self.width, self.parent.height - self.height
+#    size_hint_y: None
+#    RelativeLayout:
+#        ButtonImage:
+#            id: button_image_channel
+#            MDLabel:
+#                id: label_channel_infos
+#                markup: True
+#                height: 30
+#                pos: self.parent.center_x-self.width/2, self.parent.height - self.height - 8
+#                font_size: 18
+#                bold: True
+#                theme_text_color: "Primary"
+#                text_size: self.parent.width * 5/6, None
+#                size: self.texture_size
+#                halign: 'center'
+#                outline_color: 97/255, 22/255, 120/255
+#                outline_width: 1.5
+#            Label:
+#                id: label_status
+#                text: ''
+#                pos: self.parent.center_x-self.width/2, self.parent.height -self.height - (2*self.parent.children[1].height)
+#                font_size: 18
+#                bold: True
+#                text_size: self.parent.width * 5/6, None
+#                size: self.texture_size
+#                halign: 'center'
+#                outline_color: 97/255, 22/255, 120/255
+#                outline_width: 1.5
+#        MDIconButton:
+#            id: button_show_status
+#            icon: "subdirectory-arrow-left"
+#            on_release: root.info()
+#            pos: self.parent.width - self.width, self.parent.height - self.height
+#        MDIconButton:
+#            id: button_play_stream
+#            icon: "play-circle-outline"
+#            on_release: app.root.play(root.stream)
+#            user_font_size: "50dp"
+#            # pos: self.parent.width - self.width, self.parent.height - self.height
 
             
 
