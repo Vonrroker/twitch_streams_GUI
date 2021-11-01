@@ -10,5 +10,5 @@ fake_list_streams = [
         "channel_name": f"Name_{s}",
         "channel_status": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. ",
     }
-    for s in range(21)
+    for s in range(60)
 ]

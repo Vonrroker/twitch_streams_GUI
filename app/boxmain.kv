@@ -1,8 +1,8 @@
 ##:kivy
-#:import images_path kivymd.images_path
 #:import wb webbrowser
 #: set cor_borda 153/255, 51/255, 1, 1
 <BoxMain>
+    button_logout: button_logout
     button_refresh: button_refresh
     button_bottomtop: button_bottomtop
     checkbox_auto: checkbox_auto
@@ -15,6 +15,10 @@
         adaptive_height: True
         spacing: 10
         Widget:
+        MDIconButton:
+            id: button_logout
+            icon: "logout"
+            on_release: app.root.logout()
         MDIconButton:
             id: button_refresh
             icon: "refresh"
@@ -35,12 +39,13 @@
         MDIconButton:
             id: button_bottomtop
             icon: "arrow-up-down-bold-outline"
-        
+
 
     ScrollView:
         id: scrollview_streams
         scroll_wheel_distance: 50
-        GridLayout:
+
+        MDGridLayout:
             id: grid_streams
             orientation: "lr-tb"
             size_hint_y: None
@@ -48,112 +53,3 @@
             spacing: 15
             padding: 10, 10, 10, 10
             cols: 3
-            
-#<BoxStream>
-#    button_image_channel: button_image_channel
-#    label_channel_infos: label_channel_infos
-#    button_show_status: button_show_status
-#    label_status: label_status
-#    button_play_stream: button_play_stream
-
-#    size_hint_y: None
-#    RelativeLayout:
-#        ButtonImage:
-#            id: button_image_channel
-#            MDLabel:
-#                id: label_channel_infos
-#                markup: True
-#                height: 30
-#                pos: self.parent.center_x-self.width/2, self.parent.height - self.height - 8
-#                font_size: 18
-#                bold: True
-#                theme_text_color: "Primary"
-#                text_size: self.parent.width * 5/6, None
-#                size: self.texture_size
-#                halign: 'center'
-#                outline_color: 97/255, 22/255, 120/255
-#                outline_width: 1.5
-#            Label:
-#                id: label_status
-#                text: ''
-#                pos: self.parent.center_x-self.width/2, self.parent.height -self.height - (2*self.parent.children[1].height)
-#                font_size: 18
-#                bold: True
-#                text_size: self.parent.width * 5/6, None
-#                size: self.texture_size
-#                halign: 'center'
-#                outline_color: 97/255, 22/255, 120/255
-#                outline_width: 1.5
-#        MDIconButton:
-#            id: button_show_status
-#            icon: "subdirectory-arrow-left"
-#            on_release: root.info()
-#            pos: self.parent.width - self.width, self.parent.height - self.height
-#        MDIconButton:
-#            id: button_play_stream
-#            icon: "play-circle-outline"
-#            on_release: app.root.play(root.stream)
-#            user_font_size: "50dp"
-#            # pos: self.parent.width - self.width, self.parent.height - self.height
-
-            
-
-<Check@MDCheckbox>:
-    group: 'group'
-    size_hint: None, None
-    size: dp(48), dp(48)
-
-<ItemConfirm>
-    checkbox_resolution: checkbox_resolution
-
-    Check:
-        id: checkbox_resolution
-        pos_hint: {'center_x': .6, 'center_y': .5}
-        
-
-<PopUpAuth>
-    title: "Entre no link para fazer a autenticação."
-    type: "custom"
-    auto_dismiss: False
-
-<PopUpProgress>
-    title: ''
-    background: '{}/transparent.png'.format(images_path)
-    size_hint: (None, None)
-    size: (300, 300)
-    separator_height: 0
-    auto_dismiss: False
-    MDSpinner:
-
-
-<ButtonImage@AsyncImage>
-    canvas:
-        Color:
-            rgba: cor_borda
-        Line:
-            rounded_rectangle: self.x, self.y, self.width, self.height, 0
-            width: 2
-    allow_stretch: True
-
-
-<Content>
-    token: token
-    orientation: "vertical"
-    spacing: "12dp"
-    size_hint_y: None
-    height: "250dp"
-
-    MDLabel:
-        markup: True
-        text: 'Acesse [ref=url][u][color=#00aaaa]https://auth-token-stream.herokuapp.com/auth/twitch[/color][/u][/ref] e insira as credenciais abaixo:'
-        font_size: 18
-        theme_text_color: "Primary"
-        #adaptive_width: True
-        size: self.texture_size
-        on_ref_press: wb.open("https://auth-token-stream.herokuapp.com/auth/twitch")
-    MDTextField:
-        id: token
-        multiline: True
-        hint_text: "Chave de autenticação"
-        mode: "rectangle"
-   

@@ -5,6 +5,7 @@ from os import environ
 from subprocess import Popen
 from threading import Thread
 
+from pprint import pprint
 from kivy.lang import Builder
 from kivy.clock import Clock, mainthread
 from kivy.core.window import Window
@@ -12,27 +13,24 @@ from kivy.network.urlrequest import UrlRequest
 from kivy.properties import ListProperty, ObjectProperty
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDFlatButton
-from kivymd.uix.dialog import MDDialog, ModalView
+from kivymd.uix.dialog import MDDialog
 from kivymd.uix.list import OneLineAvatarIconListItem
 from app.components.BoxStream.box_stream import BoxStream
+from app.components.PopUpProgress.pop_up_progress import PopUpProgress
+from app.components.DialogSelectResolution.dialog_sselect_resolution import DialogSelectResolution, ItemConfirm
+from app.components.PopUpAuth.pop_up_auth import PopUpAuth, Content
 from kivymd.uix.textfield import MDTextField
-from psutil import process_iter
 from streamlink import Streamlink
 
 from app.config import envs, set_token
-from app.fakes.list_streams import fake_list_streams
+from app.tests.fakes.list_streams import fake_list_streams
 from app.utils.parser_streams import parser
 
 base_auth_url = "https://auth-token-stream.herokuapp.com"
 
-# app_path = envs["app_path"]
-# kv_path = f"{app_path}/app.kv"
-
-
-# Builder.load_file(kv_path)
-
 
 class BoxMain(MDBoxLayout):
+    button_logout = ObjectProperty(None)
     button_refresh = ObjectProperty(None)
     button_bottomtop = ObjectProperty(None)
     checkbox_auto = ObjectProperty(None)
@@ -51,10 +49,19 @@ class BoxMain(MDBoxLayout):
         self.popup = PopUpProgress()
         self.button_bottomtop.bind(on_press=self.bottomtop)
         self.scrollview_streams.bind(on_scroll_stop=self.add_more_streams)
+        # self.scrollview_streams.bind(on_scroll_move= lambda *args: pprint(args[1]))
         if self.mod != "testing" and (not self.client_id or not self.oauth_token):
             self.dialog_authenticate()
         else:
             self.refresh_streams_on()
+
+    def logout(self):
+        set_token(
+            access_token="",
+            refresh_token="",
+        )
+        self.list_streams_on.clear()
+        self.dialog_authenticate()
 
     def add_more_streams(self, instance, value):
         # print(instance.vbar[0])
@@ -194,7 +201,7 @@ class BoxMain(MDBoxLayout):
 
         self.list_item_confirm = [ItemConfirm(text=item) for item in list_r]
 
-        self.dialog = ResolDialog(
+        self.dialog = DialogSelectResolution(
             title="Escolha resolução:",
             type="confirmation",
             size_hint=(0.7, 1),
@@ -216,86 +223,3 @@ class BoxMain(MDBoxLayout):
 
     def close_dialog(self, instance):
         self.dialog.dismiss()
-
-
-class ItemConfirm(OneLineAvatarIconListItem):
-    divider = None
-
-
-class ResolDialog(MDDialog):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.ids.title.color = [1, 1, 1, 1]
-
-
-# class BoxStream(MDBoxLayout):
-#     button_image_channel = ObjectProperty(None)
-#     label_channel_infos = ObjectProperty(None)
-#     button_show_status = ObjectProperty(None)
-#     label_status = ObjectProperty(None)
-
-#     def __init__(self, channel_data, **kwargs):
-#         super().__init__(**kwargs)
-#         self.height = ((Window.size[0] - 60) / 3) / 1.81
-#         self.status = channel_data["channel_status"]
-#         self.stream = channel_data["channel_name"]
-#         self.button_image_channel.source = channel_data["preview_img"]
-#         self.label_channel_infos.text = "{} - {} - {:,}".format(
-#             channel_data["channel_name"].capitalize(),
-#             channel_data["game"],
-#             channel_data["viewers"],
-#         ).replace(",", ".")
-
-#         Window.bind(on_resize=self.resize)
-
-#     def info(self, *args):
-#         print("\n\n#########\n\n")
-#         if self.status in self.label_status.text:
-#             self.label_status.text = ""
-
-#         else:
-#             self.label_status.text = self.status
-
-#     def resize(self, *args):
-#         self.height = ((Window.size[0] - 60) / 3) / 1.81
-
-
-class PopUpProgress(ModalView):
-    def __init__(self, chk_vlc=False, **kwargs):
-        super().__init__(**kwargs)
-        self.chk_vlc = chk_vlc
-
-        proc = [x.info["name"].replace(".exe", "") for x in process_iter(["name"])]
-
-        self.vlcs = proc.count("vlc")
-
-    def on_open(self):
-        if self.chk_vlc:
-            Clock.schedule_interval(self.next, 0.1)
-
-        proc = [x.info["name"].replace(".exe", "") for x in process_iter(["name"])]
-        checking = proc.count("vlc")
-
-        if checking != self.vlcs:
-            self.dismiss()
-            self.chk_vlc = False
-            return False
-
-    def next(self, dt):
-        proc = [x.info["name"].replace(".exe", "") for x in process_iter(["name"])]
-        checking = proc.count("vlc")
-
-        if checking != self.vlcs:
-            self.dismiss()
-            self.chk_vlc = False
-            return False
-
-
-class PopUpAuth(MDDialog):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.ids.title.color = [1, 1, 1, 1]
-
-
-class Content(MDBoxLayout):
-    ...

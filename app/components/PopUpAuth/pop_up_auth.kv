@@ -1,0 +1,25 @@
+<PopUpAuth>
+    title: "Entre no link para fazer a autenticação."
+    type: "custom"
+    auto_dismiss: False
+
+<Content>
+    token: token
+    orientation: "vertical"
+    spacing: "12dp"
+    size_hint_y: None
+    height: "250dp"
+
+    MDLabel:
+        markup: True
+        text: 'Acesse [ref=url][u][color=#00aaaa]https://auth-token-stream.herokuapp.com/auth/twitch[/color][/u][/ref] e insira as credenciais abaixo:'
+        font_size: 18
+        theme_text_color: "Primary"
+        #adaptive_width: True
+        size: self.texture_size
+        on_ref_press: wb.open("https://auth-token-stream.herokuapp.com/auth/twitch")
+    MDTextField:
+        id: token
+        multiline: True
+        hint_text: "Chave de autenticação"
+        mode: "rectangle"

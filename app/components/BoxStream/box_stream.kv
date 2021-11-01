@@ -1,5 +1,3 @@
-#:kivy!
-
 <BoxStream>
     button_image_channel: button_image_channel
     label_channel_infos: label_channel_infos
@@ -46,3 +44,13 @@
             on_release: app.root.play(root.stream)
             user_font_size: "50dp"
             # pos: self.parent.width - self.width, self.parent.height - self.height
+
+
+<ButtonImage@AsyncImage>
+    canvas:
+        Color:
+            rgba: cor_borda
+        Line:
+            rounded_rectangle: self.x, self.y, self.width, self.height, 0
+            width: 2
+    allow_stretch: True

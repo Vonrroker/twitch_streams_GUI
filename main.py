@@ -11,11 +11,12 @@ from app.boxmain import BoxMain
 
 class MyApp(MDApp):
     title = "Streams no VLC"
-    mod = environ.get("KIVY_ENV", default="testing")
+    mod = environ.get("KIVY_ENV", default="prod")
 
     def build(self):
-        self.load_all_kv_files(self.directory)
         self.theme_cls.theme_style = "Dark"  # "Light"
+        self.load_all_kv_files(self.directory)
+
         return BoxMain(mod=self.mod)
 
 
