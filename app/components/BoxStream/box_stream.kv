@@ -16,7 +16,8 @@
                 pos: self.parent.center_x-self.width/2, self.parent.height - self.height - 8
                 font_size: 18
                 bold: True
-                theme_text_color: "Primary"
+                theme_text_color: "Custom"
+                text_color: 1, 1, 1
                 text_size: self.parent.width * 5/6, None
                 size: self.texture_size
                 halign: 'center'
@@ -36,11 +37,15 @@
         MDIconButton:
             id: button_show_status
             icon: "subdirectory-arrow-left"
+            theme_text_color: "Custom"
+            text_color: 1, 1, 1
             on_release: root.info()
             pos: self.parent.width - self.width, self.parent.height - self.height
         MDIconButton:
             id: button_play_stream
             icon: "play-circle-outline"
+            theme_text_color: "Custom"
+            text_color: 1, 1, 1
             on_release: app.root.play(root.stream)
             user_font_size: "50dp"
             # pos: self.parent.width - self.width, self.parent.height - self.height

@@ -2,7 +2,6 @@
 #:import wb webbrowser
 #: set cor_borda 153/255, 51/255, 1, 1
 <BoxMain>
-    button_logout: button_logout
     button_refresh: button_refresh
     button_bottomtop: button_bottomtop
     checkbox_auto: checkbox_auto
@@ -16,7 +15,6 @@
         spacing: 10
         Widget:
         MDIconButton:
-            id: button_logout
             icon: "logout"
             on_release: app.root.logout()
         MDIconButton:
@@ -39,6 +37,9 @@
         MDIconButton:
             id: button_bottomtop
             icon: "arrow-up-down-bold-outline"
+        MDIconButton:
+            icon: "theme-light-dark"
+            on_release: app.toggle_theme()
 
 
     ScrollView:

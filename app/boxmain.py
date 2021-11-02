@@ -17,7 +17,10 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.list import OneLineAvatarIconListItem
 from app.components.BoxStream.box_stream import BoxStream
 from app.components.PopUpProgress.pop_up_progress import PopUpProgress
-from app.components.DialogSelectResolution.dialog_sselect_resolution import DialogSelectResolution, ItemConfirm
+from app.components.DialogSelectResolution.dialog_sselect_resolution import (
+    DialogSelectResolution,
+    ItemConfirm,
+)
 from app.components.PopUpAuth.pop_up_auth import PopUpAuth, Content
 from kivymd.uix.textfield import MDTextField
 from streamlink import Streamlink
@@ -30,7 +33,6 @@ base_auth_url = "https://auth-token-stream.herokuapp.com"
 
 
 class BoxMain(MDBoxLayout):
-    button_logout = ObjectProperty(None)
     button_refresh = ObjectProperty(None)
     button_bottomtop = ObjectProperty(None)
     checkbox_auto = ObjectProperty(None)
@@ -50,7 +52,7 @@ class BoxMain(MDBoxLayout):
         self.button_bottomtop.bind(on_press=self.bottomtop)
         self.scrollview_streams.bind(on_scroll_stop=self.add_more_streams)
         # self.scrollview_streams.bind(on_scroll_move= lambda *args: pprint(args[1]))
-        if self.mod != "testing" and (not self.client_id or not self.oauth_token):
+        if self.mod != "test" and (not self.client_id or not self.oauth_token):
             self.dialog_authenticate()
         else:
             self.refresh_streams_on()
@@ -61,6 +63,7 @@ class BoxMain(MDBoxLayout):
             refresh_token="",
         )
         self.list_streams_on.clear()
+        self.grid_streams.clear_widgets()
         self.dialog_authenticate()
 
     def add_more_streams(self, instance, value):
@@ -144,7 +147,7 @@ class BoxMain(MDBoxLayout):
     def refresh_streams_on(self):
         self.list_streams_on.clear()
         self.popup.open()
-        if self.mod == "testing":
+        if self.mod == "test":
             self.list_streams_on.extend(fake_list_streams)
         elif self.oauth_token:
             print("Resquest refresh_streams_on")
