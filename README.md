@@ -5,7 +5,7 @@ App desktop desenvolvido em python e com a interface feita em [KivyMD](https://g
 O programa exibe na tela todas streams ao vivo seguidas pelo usuário, e permite
 assistir uma live no reprodutor de vídeo [VLC](https://www.videolan.org/vlc/#download).
 
-![image](app/fakes/twitch_streams.jpg?raw=true)
+![image](app/tests/fakes/twitch_streams.jpg?raw=true)
 
 ## Baixar projeto
 
@@ -25,7 +25,7 @@ poetry install
 ```
 poetry shell
 
-python app/main.py
+python main.py
 ```
 
 ## Rodar testes
