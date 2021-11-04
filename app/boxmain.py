@@ -49,13 +49,43 @@ class BoxMain(MDBoxLayout):
         # self.popup_auth = PopUpAuth()
         self.mod = mod
         self.popup = PopUpProgress()
+        self._keyboard = Window.request_keyboard(self._keyboard_closed, self, "text")
+        if self._keyboard.widget:
+            # If it exists, this widget is a VKeyboard object which you can use
+            # to change the keyboard layout.
+            pass
+        self._keyboard.bind(on_key_down=self._on_keyboard_down)
         self.button_bottomtop.bind(on_press=self.bottomtop)
         self.scrollview_streams.bind(on_scroll_stop=self.add_more_streams)
-        # self.scrollview_streams.bind(on_scroll_move= lambda *args: pprint(args[1]))
+        self.scrollview_streams.bind(on_scroll_start=lambda *args: pprint(args[1]))
         if self.mod != "test" and (not self.client_id or not self.oauth_token):
             self.dialog_authenticate()
         else:
             self.refresh_streams_on()
+
+    def _keyboard_closed(self):
+        self._keyboard.unbind(on_key_down=self._on_keyboard_down)
+        self._keyboard = None
+
+    def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
+        print("The key", keycode, "have been pressed")
+        print(" - text is %r" % text)
+        print(" - modifiers are %r" % modifiers)
+
+        # Keycode is composed of an integer + a string
+        # If we hit escape, release the keyboard
+        if keycode[1] == "down" and self.scrollview_streams.vbar[0] > 0:
+            print(self.scrollview_streams.vbar[0])
+            if self.scrollview_streams.scroll_y > 0:
+                self.scrollview_streams.scroll_y -= 0.1
+        if keycode[1] == "up" and self.scrollview_streams.vbar[0] < 1:
+            print(self.scrollview_streams.vbar[0])
+            if self.scrollview_streams.scroll_y < 1:
+                self.scrollview_streams.scroll_y += 0.1
+
+        # Return True to accept the key. Otherwise, it will be used by
+        # the system.
+        return True
 
     def logout(self):
         set_token(

@@ -11,7 +11,7 @@ from app.boxmain import BoxMain
 
 class MyApp(MDApp):
     title = "Streams no VLC"
-    mod = environ.get("KIVY_ENV", default="prod")
+    mod = environ.get("KIVY_ENV", default="test")
 
     def build(self):
         self.theme_cls.theme_style = "Dark"  # "Light"
