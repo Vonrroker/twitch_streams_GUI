@@ -26,7 +26,7 @@ from kivymd.uix.textfield import MDTextField
 from streamlink import Streamlink
 
 from app.config import envs, set_token
-from app.tests.fakes.list_streams import fake_list_streams
+from tests.fakes.list_streams import fake_list_streams
 from app.utils.parser_streams import parser
 
 base_auth_url = "https://auth-token-stream.herokuapp.com"
