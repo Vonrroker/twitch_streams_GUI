@@ -26,7 +26,7 @@ from kivymd.uix.textfield import MDTextField
 from streamlink import Streamlink
 
 from app.config import envs, set_token
-from app.tests.fakes.list_streams import fake_list_streams
+from tests.fakes.list_streams import fake_list_streams
 from app.utils.parser_streams import parser
 
 base_auth_url = "https://auth-token-stream.herokuapp.com"
@@ -68,12 +68,6 @@ class BoxMain(MDBoxLayout):
         self._keyboard = None
 
     def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
-        print("The key", keycode, "have been pressed")
-        print(" - text is %r" % text)
-        print(" - modifiers are %r" % modifiers)
-
-        # Keycode is composed of an integer + a string
-        # If we hit escape, release the keyboard
         if keycode[1] == "down" and self.scrollview_streams.vbar[0] > 0:
             print(self.scrollview_streams.vbar[0])
             if self.scrollview_streams.scroll_y > 0:
@@ -83,8 +77,6 @@ class BoxMain(MDBoxLayout):
             if self.scrollview_streams.scroll_y < 1:
                 self.scrollview_streams.scroll_y += 0.1
 
-        # Return True to accept the key. Otherwise, it will be used by
-        # the system.
         return True
 
     def logout(self):
