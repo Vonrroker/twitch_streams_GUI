@@ -30,6 +30,7 @@ from tests.fakes.list_streams import fake_list_streams
 from app.utils.parser_streams import parser
 
 base_auth_url = "https://auth-token-stream.herokuapp.com"
+user_info_url = "https://id.twitch.tv/oauth2/userinfo"
 
 
 class BoxMain(MDBoxLayout):
@@ -42,6 +43,7 @@ class BoxMain(MDBoxLayout):
     list_streams_on = ListProperty()
     oauth_token = environ.get("OAUTH_TOKEN", default="")
     refresh_token = environ.get("REFRESH_TOKEN", default="")
+    user_id = environ.get("USER_ID")
     client_id = envs["client_id"]
 
     def __init__(self, mod, **kwargs):
@@ -57,7 +59,7 @@ class BoxMain(MDBoxLayout):
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
         self.button_bottomtop.bind(on_press=self.bottomtop)
         self.scrollview_streams.bind(on_scroll_stop=self.add_more_streams)
-        self.scrollview_streams.bind(on_scroll_start=lambda *args: pprint(args[1]))
+        # self.scrollview_streams.bind(on_scroll_start=lambda *args: pprint(args[1]))
         if self.mod != "test" and (not self.client_id or not self.oauth_token):
             self.dialog_authenticate()
         else:
@@ -69,20 +71,23 @@ class BoxMain(MDBoxLayout):
 
     def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
         if keycode[1] == "down" and self.scrollview_streams.vbar[0] > 0:
-            print(self.scrollview_streams.vbar[0])
+            # print(self.scrollview_streams.vbar[0])
             if self.scrollview_streams.scroll_y > 0:
                 self.scrollview_streams.scroll_y -= 0.1
         if keycode[1] == "up" and self.scrollview_streams.vbar[0] < 1:
-            print(self.scrollview_streams.vbar[0])
+            # print(self.scrollview_streams.vbar[0])
             if self.scrollview_streams.scroll_y < 1:
                 self.scrollview_streams.scroll_y += 0.1
 
         return True
 
-    def logout(self):
+    def logout(self, *args):
+        print("Deslogando...")
+        # breakpoint()
         set_token(
             access_token="",
             refresh_token="",
+            user_id=""
         )
         self.list_streams_on.clear()
         self.grid_streams.clear_widgets()
@@ -131,11 +136,13 @@ class BoxMain(MDBoxLayout):
             (
                 field_token,
                 field_refresh_token,
+                field_user_id
             ) = self.dialog_auth.content_cls.ids.token.text.split(".")
             self.save_token(
                 data={
                     "access_token": field_token,
                     "refresh_token": field_refresh_token,
+                    "user_id": field_user_id
                 }
             )
             self.dialog_auth.dismiss()
@@ -150,12 +157,16 @@ class BoxMain(MDBoxLayout):
         if "message" in response and response["message"] == "Invalid refresh token":
             return self.dialog_authenticate()
 
+
         set_token(
             access_token=response["access_token"],
             refresh_token=response["refresh_token"],
+            user_id=response["user_id"]
         )
         self.oauth_token = response["access_token"]
         self.refresh_token = response["refresh_token"]
+        self.user_id = response["user_id"]
+
         self.refresh_streams_on()
 
     def bottomtop(self, *args):
@@ -174,16 +185,16 @@ class BoxMain(MDBoxLayout):
         elif self.oauth_token:
             print("Resquest refresh_streams_on")
             UrlRequest(
-                url="https://api.twitch.tv/kraken/streams/followed?stream_type=live&limit=100",
+                url=f"https://api.twitch.tv/helix/streams/followed?type=live&user_id={self.user_id}",
                 req_headers={
                     "Accept": "application/vnd.twitchtv.v5+json",
                     "Client-ID": self.client_id,
-                    "Authorization": f"OAuth {self.oauth_token}",
+                    "Authorization": f"Bearer {self.oauth_token}",
                 },
                 on_success=lambda *response: self.list_streams_on.extend(
                     parser(response)
                 ),
-                on_failure=self.authenticate,
+                on_failure=lambda *x: self.logout(x),
             )
 
     def on_list_streams_on(self, instance, value):
