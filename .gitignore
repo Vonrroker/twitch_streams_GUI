@@ -144,3 +144,4 @@ credencial.py
 .vscode
 teste.*
 poetry.lock
+tests
