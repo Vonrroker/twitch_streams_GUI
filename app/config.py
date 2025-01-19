@@ -1,5 +1,5 @@
 from os import path, environ
-from dotenv import load_dotenv
+from dotenv import load_dotenv, set_key
 
 
 project_path = path.realpath
@@ -16,8 +16,8 @@ envs = {
 
 def set_token(access_token, refresh_token, user_id):
     print(f"Salvando tokens em {env_path}")
-    with open(env_path, "w") as f:
-        f.write(f"OAUTH_TOKEN={access_token}\n")
-        f.write(f"REFRESH_TOKEN={refresh_token}\n")
-        f.write(f"USER_ID={user_id}")
+    set_key(env_path, "OAUTH_TOKEN", access_token)
+    set_key(env_path, "REFRESH_TOKEN", refresh_token)
+    set_key(env_path, "USER_ID", user_id)
+    
     load_dotenv(env_path)

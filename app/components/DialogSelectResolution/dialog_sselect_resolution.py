@@ -1,9 +1,10 @@
-from kivymd.uix.list import OneLineAvatarIconListItem
+# from kivymd.uix.list import OneLineAvatarIconListItem
 from kivymd.uix.dialog.dialog import MDDialog
+from kivymd.uix.list import MDListItemTrailingCheckbox
 
 
-class ItemConfirm(OneLineAvatarIconListItem):
-    divider = None
+# class ItemConfirm(OneLineAvatarIconListItem):
+#     divider = None
 
 
 class DialogSelectResolution(MDDialog):

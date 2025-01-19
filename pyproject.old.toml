@@ -1,0 +1,41 @@
+[tool.poetry]
+name = "twitch-streams-GUI"
+version = "0.1.0"
+description = "App desktop desenvolvido em python e com a interface feita em KivyMD"
+authors = ["Dayham Soares <dayhamsoares@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+psutil = "^5.7.2"
+python-dotenv = "^0.14.0"
+Pillow = "^8.1.0"
+Kivy = "^2.0.0"
+streamlink = "^2.0.0"
+kivymd = {git = "https://github.com/kivymd/KivyMD.git"}
+Flask = "^3.0.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+black = {version = "^20.8b1", allow-prereleases = true}
+ipdb = "^0.13.3"
+coverage = "^5.3"
+importanize = "^0.7.0"
+
+[tool.coverage.run]
+include = [
+    "app/main.py",
+    "app/boximg.py",
+    "app/boxmain.py",
+    "app/popupprogress.py",
+    "app/utils/serializer_list_streams.py"
+]
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "error",
+    "ignore::DeprecationWarning",
+    
+]
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

@@ -9,19 +9,22 @@ from pprint import pprint
 from kivy.lang import Builder
 from kivy.clock import Clock, mainthread
 from kivy.core.window import Window
+from kivymd.uix.widget import MDWidget
+from kivy.uix.widget import Widget
 from kivy.network.urlrequest import UrlRequest
 from kivy.properties import ListProperty, ObjectProperty
 from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.button import MDFlatButton
-from kivymd.uix.dialog import MDDialog
-from kivymd.uix.list import OneLineAvatarIconListItem
+from kivymd.uix.button import MDButton, MDButtonText
+from kivymd.uix.list import MDListItem, MDListItemHeadlineText, MDListItemTrailingCheckbox
+from kivymd.uix.dialog import MDDialogHeadlineText, MDDialogButtonContainer, MDDialogContentContainer, MDDialog
+# from kivymd.uix.list import OneLineAvatarIconListItem
 from app.components.BoxStream.box_stream import BoxStream
 from app.components.PopUpProgress.pop_up_progress import PopUpProgress
 from app.components.DialogSelectResolution.dialog_sselect_resolution import (
     DialogSelectResolution,
-    ItemConfirm,
+    # ItemConfirm,
 )
-from app.components.PopUpAuth.pop_up_auth import PopUpAuth, Content
+from app.components.PopUpAuth.pop_up_auth import Content, PopUpAuth
 from kivymd.uix.textfield import MDTextField
 from streamlink import Streamlink
 
@@ -29,7 +32,7 @@ from app.config import envs, set_token
 from tests.fakes.list_streams import fake_list_streams
 from app.utils.parser_streams import parser
 
-base_auth_url = "https://auth-token-stream.herokuapp.com"
+base_auth_url = "https://localhost:5000"
 user_info_url = "https://id.twitch.tv/oauth2/userinfo"
 
 
@@ -48,7 +51,6 @@ class BoxMain(MDBoxLayout):
 
     def __init__(self, mod, **kwargs):
         super().__init__(**kwargs)
-        # self.popup_auth = PopUpAuth()
         self.mod = mod
         self.popup = PopUpProgress()
         self._keyboard = Window.request_keyboard(self._keyboard_closed, self, "text")
@@ -71,11 +73,9 @@ class BoxMain(MDBoxLayout):
 
     def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
         if keycode[1] == "down" and self.scrollview_streams.vbar[0] > 0:
-            # print(self.scrollview_streams.vbar[0])
             if self.scrollview_streams.scroll_y > 0:
                 self.scrollview_streams.scroll_y -= 0.1
         if keycode[1] == "up" and self.scrollview_streams.vbar[0] < 1:
-            # print(self.scrollview_streams.vbar[0])
             if self.scrollview_streams.scroll_y < 1:
                 self.scrollview_streams.scroll_y += 0.1
 
@@ -83,6 +83,7 @@ class BoxMain(MDBoxLayout):
 
     def logout(self, *args):
         print("Deslogando...")
+        print(args)
         # breakpoint()
         set_token(
             access_token="",
@@ -103,27 +104,16 @@ class BoxMain(MDBoxLayout):
 
     @mainthread
     def dialog_authenticate(self):
-        self.dialog_auth = PopUpAuth(
-            content_cls=Content(),
-            buttons=[
-                MDFlatButton(
-                    text="Fazer autenticação",
-                    on_release=self.authenticate,
-                ),
-                MDFlatButton(
-                    text="Abrir Url",
-                    on_release=lambda arg: webbrowser.open(
-                        f"{base_auth_url}/auth/twitch"
-                    ),
-                ),
-            ],
-        )
-        # self.dialog_auth.set_normal_height()
+        self.dialog_auth = PopUpAuth(authenticate=self.authenticate, base_auth_url=base_auth_url)
         self.dialog_auth.open()
 
     def authenticate(self, instance, *args):
         print(instance, args)
-        if args and args[0]["error"] == "Unauthorized":
+        if self.mod == "test":
+            self.refresh_streams_on()
+            self.dialog_auth.dismiss()
+
+        elif args and args[0]["error"] == "Unauthorized":
             print("refreshing token")
             UrlRequest(
                 url=f"{base_auth_url}/refresh?refresh_token={self.refresh_token}",
@@ -137,7 +127,7 @@ class BoxMain(MDBoxLayout):
                 field_token,
                 field_refresh_token,
                 field_user_id
-            ) = self.dialog_auth.content_cls.ids.token.text.split(".")
+            ) = self.dialog_auth.ids.content_container.children[0].children[0].ids.token.text.split(".")
             self.save_token(
                 data={
                     "access_token": field_token,
@@ -215,9 +205,10 @@ class BoxMain(MDBoxLayout):
             self.popup.open()
             try:
                 self.popup_resol.dismiss()
+                pass
             except AttributeError:
                 pass
-            tmp = f"streamlink http://twitch.tv/{go} {qlt}"
+            tmp = f'streamlink http://twitch.tv/{go} {qlt}'
             print(tmp)
             Popen(tmp, close_fds=True, shell=True)
 
@@ -235,20 +226,57 @@ class BoxMain(MDBoxLayout):
     def dialog_select_resolution(self, list_r):
         self.popup.dismiss()
 
-        self.list_item_confirm = [ItemConfirm(text=item) for item in list_r]
+        # self.list_item_confirm = [ItemConfirm(text=item) for item in list_r]
+        self.list_item_confirm = [
+            MDListItem(
+                MDListItemHeadlineText(
+                        text=item,
+                    ),
+                MDListItemTrailingCheckbox(
+                    group="group"
+                ),
+                theme_bg_color="Custom",
+                md_bg_color=self.theme_cls.transparentColor
+            )
 
-        self.dialog = DialogSelectResolution(
-            title="Escolha resolução:",
-            type="confirmation",
-            size_hint=(0.7, 1),
-            auto_dismiss=False,
-            items=self.list_item_confirm,
-            buttons=[
-                MDFlatButton(text="PLAY", on_release=self.play_with_resolution),
-                MDFlatButton(text="CANCELAR", on_release=self.close_dialog),
-            ],
+            for item in list_r
+        ]
+
+        self.dialog = MDDialog(
+            MDDialogHeadlineText(
+                text="Escolha resolução:",
+                halign="left",
+            ),
+            MDDialogContentContainer(
+                *self.list_item_confirm,
+                orientation="vertical",
+            ),
+            MDDialogButtonContainer(
+                Widget(),
+                MDButton(
+                    MDButtonText(text="Play"),
+                    style="text",
+                ),
+                MDButton(
+                    MDButtonText(text="Cancel"),
+                    style="text",
+                ),
+                spacing="8dp",
+            ),
         )
+        # self.dialog = DialogSelectResolution(
+        #     title="Escolha resolução:",
+        #     type="confirmation",
+        #     size_hint=(0.7, 1),
+        #     auto_dismiss=False,
+        #     items=self.list_item_confirm,
+        #     buttons=[
+        #         MDFlatButton(text="PLAY", on_release=self.play_with_resolution),
+        #         MDFlatButton(text="CANCELAR", on_release=self.close_dialog),
+        #     ],
+        # )
         self.dialog.open()
+        # breakpoint()
 
     def play_with_resolution(self, instance):
         for item in self.list_item_confirm:
