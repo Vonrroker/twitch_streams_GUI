@@ -5,8 +5,8 @@ Config.set("graphics", "window_state", "maximized")
 Config.set("graphics", "minimum_width", 800)
 Config.set("graphics", "minimum_height", 384)
 
-from kivymd.app import MDApp
-from app.boxmain import BoxMain
+from kivymd.app import MDApp  # noqa: E402
+from app.boxmain import BoxMain  # noqa: E402
 
 
 class MyApp(MDApp):
