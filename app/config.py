@@ -15,7 +15,15 @@ envs = {
 
 
 def set_token(access_token, refresh_token, user_id):
-    print(f"Salvando tokens em {env_path}")
+    """
+    Save the provided tokens and user ID to the .env file.
+
+    Args:
+        access_token (str): The OAuth access token.
+        refresh_token (str): The OAuth refresh token.
+        user_id (str): The user ID.
+    """
+    print(f"Saving tokens in {env_path}")
     set_key(env_path, "OAUTH_TOKEN", access_token)
     set_key(env_path, "REFRESH_TOKEN", refresh_token)
     set_key(env_path, "USER_ID", user_id)

@@ -1,5 +1,6 @@
 import sys
 import webbrowser
+import logging
 from json import loads
 from os import environ
 from subprocess import Popen
@@ -34,6 +35,13 @@ from app.utils.parser_streams import parser
 
 base_auth_url = "https://localhost:5000"
 user_info_url = "https://id.twitch.tv/oauth2/userinfo"
+
+# Configuração básica do logger
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler()]
+)
 
 
 class BoxMain(MDBoxLayout):
@@ -82,9 +90,8 @@ class BoxMain(MDBoxLayout):
         return True
 
     def logout(self, *args):
-        print("Deslogando...")
-        print(args)
-        # breakpoint()
+        logging.info("Iniciando logout...")
+        logging.debug(f"Argumentos recebidos no logout: {args}")
         set_token(
             access_token="",
             refresh_token="",
@@ -92,37 +99,39 @@ class BoxMain(MDBoxLayout):
         )
         self.list_streams_on.clear()
         self.grid_streams.clear_widgets()
+        logging.info("Usuário deslogado com sucesso. Abrindo diálogo de autenticação.")
         self.dialog_authenticate()
 
     def add_more_streams(self, instance, value):
-        # print(instance.vbar[0])
         scroll_pos = instance.vbar[0]
         grid_size = len(self.grid_streams.children)
         if scroll_pos < 0.00001 and grid_size < len(self.list_streams_on):
+            logging.info("Adicionando mais streams à grade.")
             for stream in self.list_streams_on[grid_size : grid_size + 9]:
                 self.grid_streams.add_widget(BoxStream(channel_data=stream))
 
     @mainthread
     def dialog_authenticate(self):
+        logging.info("Abrindo diálogo de autenticação.")
         self.dialog_auth = PopUpAuth(authenticate=self.authenticate, base_auth_url=base_auth_url)
         self.dialog_auth.open()
 
     def authenticate(self, instance, *args):
-        print(instance, args)
+        logging.info("Iniciando autenticação.")
+        logging.debug(f"Instância: {instance}, Argumentos: {args}")
         if self.mod == "test":
+            logging.info("Modo de teste ativado. Atualizando streams.")
             self.refresh_streams_on()
             self.dialog_auth.dismiss()
-
-        elif args and args[0]["error"] == "Unauthorized":
-            print("refreshing token")
+        elif args and args[0].get("error") == "Unauthorized":
+            logging.warning("Token não autorizado. Tentando atualizar o token.")
             UrlRequest(
                 url=f"{base_auth_url}/refresh?refresh_token={self.refresh_token}",
-                on_success=lambda req, result: self.save_token(
-                    instance=req, data=result
-                ),
-                on_failure=lambda req, result: print("fail"),
+                on_success=lambda req, result: self.save_token(instance=req, data=result),
+                on_failure=lambda req, result: logging.error("Falha ao atualizar o token.")
             )
         else:
+            logging.info("Salvando novo token.")
             (
                 field_token,
                 field_refresh_token,
@@ -138,15 +147,16 @@ class BoxMain(MDBoxLayout):
             self.dialog_auth.dismiss()
 
     def save_token(self, *, instance=None, data):
-        print(instance, data)
+        logging.info("Salvando token.")
+        logging.debug(f"Dados recebidos: {data}")
         if isinstance(data, str):
             response = loads(data)
         else:
             response = data
 
         if "message" in response and response["message"] == "Invalid refresh token":
+            logging.error("Token de atualização inválido. Reabrindo diálogo de autenticação.")
             return self.dialog_authenticate()
-
 
         set_token(
             access_token=response["access_token"],
@@ -157,6 +167,7 @@ class BoxMain(MDBoxLayout):
         self.refresh_token = response["refresh_token"]
         self.user_id = response["user_id"]
 
+        logging.info("Token salvo com sucesso. Atualizando streams.")
         self.refresh_streams_on()
 
     def bottomtop(self, *args):
@@ -168,12 +179,14 @@ class BoxMain(MDBoxLayout):
             self.scrollview_streams.scroll_y = 1
 
     def refresh_streams_on(self):
+        logging.info("Atualizando lista de streams.")
         self.list_streams_on.clear()
         self.popup.open()
         if self.mod == "test":
+            logging.info("Modo de teste ativado. Usando lista de streams fake.")
             self.list_streams_on.extend(fake_list_streams)
         elif self.oauth_token:
-            print("Resquest refresh_streams_on")
+            logging.info("Solicitando streams seguidos da API do Twitch.")
             UrlRequest(
                 url=f"https://api.twitch.tv/helix/streams/followed?type=live&user_id={self.user_id}",
                 req_headers={
@@ -181,35 +194,34 @@ class BoxMain(MDBoxLayout):
                     "Client-ID": self.client_id,
                     "Authorization": f"Bearer {self.oauth_token}",
                 },
-                on_success=lambda *response: self.list_streams_on.extend(
-                    parser(response)
-                ),
-                on_failure=lambda *x: self.logout(x),
+                on_success=lambda *response: self.list_streams_on.extend(parser(response)),
+                on_failure=lambda *x: logging.error("Falha ao atualizar streams. Deslogando usuário.") or self.logout(x),
             )
 
     def on_list_streams_on(self, instance, value):
+        logging.info("Lista de streams atualizada.")
         self.popup.dismiss()
-
         self.grid_streams.clear_widgets()
-
+        logging.debug(f"Adicionando os primeiros 30 streams à grade. Total de streams: {len(self.list_streams_on)}")
         for stream in self.list_streams_on[:30]:
             self.grid_streams.add_widget(BoxStream(channel_data=stream))
 
     def play(self, go: str, qlt="best"):
-        self.popup.open()
+        # self.popup.open()
         self.go = go
         if not self.checkbox_auto.active and qlt == "best":
+            logging.info("Buscando resoluções disponíveis.")
             Thread(target=self.search_resolutions, args=(go,)).start()
         else:
+            logging.info(f"Iniciando reprodução do stream: {go} com qualidade: {qlt}")
             self.popup.chk_vlc = True
             self.popup.open()
             try:
                 self.popup_resol.dismiss()
-                pass
             except AttributeError:
                 pass
             tmp = f'streamlink http://twitch.tv/{go} {qlt}'
-            print(tmp)
+            logging.debug(f"Comando executado: {tmp}")
             Popen(tmp, close_fds=True, shell=True)
 
     def search_resolutions(self, go):
@@ -256,6 +268,7 @@ class BoxMain(MDBoxLayout):
                 MDButton(
                     MDButtonText(text="Play"),
                     style="text",
+                    on_release=self.play_with_resolution,
                 ),
                 MDButton(
                     MDButtonText(text="Cancel"),
@@ -264,26 +277,28 @@ class BoxMain(MDBoxLayout):
                 spacing="8dp",
             ),
         )
-        # self.dialog = DialogSelectResolution(
-        #     title="Escolha resolução:",
-        #     type="confirmation",
-        #     size_hint=(0.7, 1),
-        #     auto_dismiss=False,
-        #     items=self.list_item_confirm,
-        #     buttons=[
-        #         MDFlatButton(text="PLAY", on_release=self.play_with_resolution),
-        #         MDFlatButton(text="CANCELAR", on_release=self.close_dialog),
-        #     ],
-        # )
+        
         self.dialog.open()
         # breakpoint()
 
     def play_with_resolution(self, instance):
+        # breakpoint()
+        # print(instance, self.list_item_confirm)
+        # self.list_item_confirm[3].children[0].children[0].active
+        # self.list_item_confirm[3].children[1].children[0].children[0].text
+
         for item in self.list_item_confirm:
-            if item.checkbox_resolution.active:
-                self.play(go=self.go, qlt=item.text)
+            if item.children[0].children[0].active:
+                self.popup.chk_vlc = True
+                self.popup.open()
+                self.play(go=self.go, qlt=item.children[1].children[0].children[0].text)
                 self.dialog.dismiss()
                 break
+        # for item in self.list_item_confirm:
+        #     if item.checkbox_resolution.active:
+        #         self.play(go=self.go, qlt=item.text)
+        #         self.dialog.dismiss()
+        #         break
 
     def close_dialog(self, instance):
         self.dialog.dismiss()
