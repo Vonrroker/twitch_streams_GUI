@@ -44,7 +44,6 @@ class PopUpProgress(MDDialog):
 
         proc = [x.info["name"].replace(".exe", "") for x in process_iter(["name"])]
         checking = proc.count("vlc")
-        logging.debug(f"Processos no on_open: {proc}")
         logging.debug(f"Contagem de VLC no on_open: {checking}")
 
         if checking != self.vlcs:

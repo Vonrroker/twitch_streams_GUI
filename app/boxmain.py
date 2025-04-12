@@ -18,12 +18,10 @@ from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDButton, MDButtonText
 from kivymd.uix.list import MDListItem, MDListItemHeadlineText, MDListItemTrailingCheckbox
 from kivymd.uix.dialog import MDDialogHeadlineText, MDDialogButtonContainer, MDDialogContentContainer, MDDialog
-# from kivymd.uix.list import OneLineAvatarIconListItem
 from app.components.BoxStream.box_stream import BoxStream
 from app.components.PopUpProgress.pop_up_progress import PopUpProgress
 from app.components.DialogSelectResolution.dialog_sselect_resolution import (
     DialogSelectResolution,
-    # ItemConfirm,
 )
 from app.components.PopUpAuth.pop_up_auth import Content, PopUpAuth
 from kivymd.uix.textfield import MDTextField
@@ -238,7 +236,6 @@ class BoxMain(MDBoxLayout):
     def dialog_select_resolution(self, list_r):
         self.popup.dismiss()
 
-        # self.list_item_confirm = [ItemConfirm(text=item) for item in list_r]
         self.list_item_confirm = [
             MDListItem(
                 MDListItemHeadlineText(
@@ -282,11 +279,6 @@ class BoxMain(MDBoxLayout):
         # breakpoint()
 
     def play_with_resolution(self, instance):
-        # breakpoint()
-        # print(instance, self.list_item_confirm)
-        # self.list_item_confirm[3].children[0].children[0].active
-        # self.list_item_confirm[3].children[1].children[0].children[0].text
-
         for item in self.list_item_confirm:
             if item.children[0].children[0].active:
                 self.popup.chk_vlc = True
@@ -294,11 +286,6 @@ class BoxMain(MDBoxLayout):
                 self.play(go=self.go, qlt=item.children[1].children[0].children[0].text)
                 self.dialog.dismiss()
                 break
-        # for item in self.list_item_confirm:
-        #     if item.checkbox_resolution.active:
-        #         self.play(go=self.go, qlt=item.text)
-        #         self.dialog.dismiss()
-        #         break
 
     def close_dialog(self, instance):
         self.dialog.dismiss()
