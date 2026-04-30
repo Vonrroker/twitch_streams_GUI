@@ -25,7 +25,7 @@ class PopUpProgress(MDDialog):
         logging.info("Inicializando PopUpProgress.")
         proc = [x.info["name"].replace(".exe", "") for x in process_iter(["name"])]
         self.vlcs = proc.count("vlc")
-        logging.debug(f"Processos encontrados: {proc}")
+        # logging.debug(f"Processos encontrados: {proc}")
         logging.debug(f"Contagem inicial de VLC: {self.vlcs}")
 
         self.add_widget(MDCircularProgressIndicator(
@@ -57,7 +57,7 @@ class PopUpProgress(MDDialog):
         logging.info("Executando verificação periódica de processos.")
         proc = [x.info["name"].replace(".exe", "") for x in process_iter(["name"])]
         checking = proc.count("vlc")
-        logging.debug(f"Processos no next: {proc}")
+        # logging.debug(f"Processos no next: {proc}")
         logging.debug(f"Contagem de VLC no next: {checking}")
 
         if checking != self.vlcs:
