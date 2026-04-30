@@ -66,7 +66,7 @@ class BoxMain(MDBoxLayout):
             pass
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
         self.button_bottomtop.bind(on_press=self.bottomtop)
-        self.scrollview_streams.bind(on_scroll_stop=self.add_more_streams)
+        # self.scrollview_streams.bind(on_scroll_stop=self.add_more_streams)
         # self.scrollview_streams.bind(on_scroll_start=lambda *args: pprint(args[1]))
         if self.mod != "test" and (not self.client_id or not self.oauth_token):
             self.dialog_authenticate()
@@ -100,13 +100,14 @@ class BoxMain(MDBoxLayout):
         logging.info("Usuário deslogado com sucesso. Abrindo diálogo de autenticação.")
         self.dialog_authenticate()
 
-    def add_more_streams(self, instance, value):
-        scroll_pos = instance.vbar[0]
+    def add_more_streams(self, *args):
         grid_size = len(self.grid_streams.children)
-        if scroll_pos < 0.00001 and grid_size < len(self.list_streams_on):
+        if grid_size < len(self.list_streams_on):
             logging.info("Adicionando mais streams à grade.")
             for stream in self.list_streams_on[grid_size : grid_size + 9]:
                 self.grid_streams.add_widget(BoxStream(channel_data=stream))
+                
+
 
     @mainthread
     def dialog_authenticate(self):

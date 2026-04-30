@@ -44,14 +44,23 @@
 
     ScrollView:
         id: scrollview_streams
-        scroll_wheel_distance: 50
+        scroll_wheel_distance: 200
         # scroll_type: ['bars', 'content']
 
-        MDGridLayout:
-            id: grid_streams
-            orientation: "lr-tb"
-            size_hint_y: None
-            height: self.minimum_height
-            spacing: 15
-            padding: 10, 10, 10, 10
-            cols: 3
+        MDBoxLayout:
+            orientation: 'vertical'
+            adaptive_height: True
+            spacing: 20
+            MDGridLayout:
+                id: grid_streams
+                orientation: "lr-tb"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: 15
+                padding: 10, 10, 10, 10
+                cols: 3
+            MDIconButton:
+                icon: "plus"
+                style: "filled"
+                pos_hint: {"center_x": .5}
+                on_release: root.add_more_streams()
