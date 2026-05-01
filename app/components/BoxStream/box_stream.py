@@ -1,34 +1,30 @@
-from kivymd.uix.boxlayout import MDBoxLayout
-from kivy.properties import ObjectProperty
-from kivy.core.window import Window
+from kivymd.uix.card import MDCard
+from kivy.properties import ObjectProperty, StringProperty
+from kivy.animation import Animation
 
-class BoxStream(MDBoxLayout):
-    button_image_channel = ObjectProperty(None)
-    label_channel_infos = ObjectProperty(None)
-    button_show_status = ObjectProperty(None)
+class BoxStream(MDCard):
     label_status = ObjectProperty(None)
+    preview_img = StringProperty("")
+    channel_name = StringProperty("")
+    game = StringProperty("")
+    viewers_count = StringProperty("")
+    stream = StringProperty("")
+    status = StringProperty("")
 
     def __init__(self, channel_data, **kwargs):
         super().__init__(**kwargs)
-        self.height = ((Window.size[0] - 60) / 3) / 1.81
         self.status = channel_data["channel_status"]
         self.stream = channel_data["channel_name"]
-        self.button_image_channel.source = channel_data["preview_img"]
-        self.label_channel_infos.text = "{} - {} - {:,}".format(
-            channel_data["channel_name"].capitalize(),
-            channel_data["game"],
-            channel_data["viewers"],
-        ).replace(",", ".")
-
-        Window.bind(on_resize=self.resize)
+        self.preview_img = channel_data["preview_img"]
+        self.channel_name = channel_data["channel_name"].capitalize()
+        self.game = channel_data["game"]
+        self.viewers_count = "{:,}".format(channel_data["viewers"]).replace(",", ".")
 
     def info(self, *args):
-        print("\n\n#########\n\n")
-        if self.status in self.label_status.text:
-            self.label_status.text = ""
-
+        if self.ids.label_status.opacity == 0:
+            self.ids.label_status.text = self.status
+            anim = Animation(opacity=1, duration=0.2)
         else:
-            self.label_status.text = self.status
+            anim = Animation(opacity=0, duration=0.2)
 
-    def resize(self, *args):
-        self.height = ((Window.size[0] - 60) / 3) / 1.81
+        anim.start(self.ids.label_status)

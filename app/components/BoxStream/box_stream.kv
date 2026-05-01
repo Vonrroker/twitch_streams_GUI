@@ -1,63 +1,93 @@
 <BoxStream>
-    button_image_channel: button_image_channel
-    label_channel_infos: label_channel_infos
-    button_show_status: button_show_status
-    label_status: label_status
-    button_play_stream: button_play_stream
-
+    orientation: "vertical"
     size_hint_y: None
-    RelativeLayout:
-        ButtonImage:
-            id: button_image_channel
-            MDLabel:
-                id: label_channel_infos
-                markup: True
-                adaptive_height: True
-                pos: self.parent.center_x-self.width/2, self.parent.height - self.height - 8
-                # font_size: "80sp"
-                font_style: "Headline"
+    height: self.width * 9/16 + dp(72)
+    style: "filled"
+    theme_bg_color: "Custom"
+    md_bg_color: self.theme_cls.surfaceContainerLowColor
+    radius: "12dp"
+    ripple_behavior: False
+    on_release: app.root.play(root.stream)
+
+    MDRelativeLayout:
+        size_hint: 1, None
+        height: root.width * 9/16
+        
+        FitImage:
+            source: root.preview_img
+            radius: "12dp", "12dp", 0, 0
+            size_hint: 1, 1
+            mipmap: True
+            nocache: False
+
+        MDButton:
+            style: "filled"
+            pos_hint: {"top": .92, "x": .05}
+            size_hint: None, None
+            size: "44dp", "24dp"
+            md_bg_color: 1, 0, 0, .9
+            radius: "4dp"
+            ripple_behavior: False
+            MDButtonText:
+                text: "LIVE"
+                font_style: "Label"
                 role: "small"
                 bold: True
-                theme_text_color: "Custom"
-                text_color: 1, 1, 1
-                text_size: self.parent.width * 5/6, None
-                size: self.texture_size
-                halign: 'center'
-                outline_color: 97/255, 22/255, 120/255
-                outline_width: 1.5
-            Label:
-                id: label_status
-                text: ''
-                pos: self.parent.center_x-self.width/2, self.parent.height -self.height - (2*self.parent.children[1].height)
-                font_size: "20sp"
-                bold: True
-                text_size: self.parent.width * 5/6, None
-                size: self.texture_size
-                halign: 'center'
-                outline_color: 97/255, 22/255, 120/255
-                outline_width: 1.5
+                pos_hint: {"center_x": .5, "center_y": .5}
+
         MDIconButton:
-            id: button_show_status
-            icon: "subdirectory-arrow-left"
-            theme_text_color: "Custom"
-            text_color: 1, 1, 1
+            icon: "information-outline"
+            pos_hint: {"top": 1, "right": 1}
+            theme_icon_color: "Custom"
+            icon_color: 1, 1, 1, .8
             on_release: root.info()
-            pos: self.parent.width - self.width, self.parent.height - self.height
-        MDIconButton:
-            id: button_play_stream
-            icon: "play-circle-outline"
+            
+        MDLabel:
+            id: label_status
+            text: ""
+            opacity: 0
+            halign: "center"
+            valign: "center"
             theme_text_color: "Custom"
-            text_color: 1, 1, 1
-            on_release: app.root.play(root.stream)
-            user_font_size: "50dp"
-            # pos: self.parent.width - self.width, self.parent.height - self.height
+            text_color: 1, 1, 1, 1
+            md_bg_color: 0, 0, 0, .7
+            radius: "8dp"
+            padding: "10dp"
+            size_hint: .9, .8
+            pos_hint: {"center_x": .5, "center_y": .5}
 
+    MDBoxLayout:
+        orientation: "vertical"
+        padding: "12dp", "8dp", "12dp", "12dp"
+        spacing: "4dp"
 
-<ButtonImage@AsyncImage>
-    canvas:
-        Color:
-            rgba: cor_borda
-        Line:
-            rounded_rectangle: self.x, self.y, self.width, self.height, 0
-            width: 2
-    fit_mode : "fill"
+        MDLabel:
+            text: root.channel_name
+            font_style: "Title"
+            role: "medium"
+            bold: True
+
+        MDLabel:
+            text: root.game
+            font_style: "Label"
+            role: "large"
+            theme_text_color: "Secondary"
+
+        MDBoxLayout:
+            orientation: "horizontal"
+            spacing: "4dp"
+            size_hint_y: None
+            height: "20dp"
+
+            MDIcon:
+                icon: "account-group"
+                size_hint: None, None
+                size: "16dp", "16dp"
+                pos_hint: {"center_y": .5}
+                theme_icon_color: "Secondary"
+
+            MDLabel:
+                text: root.viewers_count
+                font_style: "Label"
+                role: "medium"
+                theme_text_color: "Secondary"
