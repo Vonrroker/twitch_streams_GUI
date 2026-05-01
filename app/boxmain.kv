@@ -1,69 +1,77 @@
 ##:kivy
 #:import wb webbrowser
 #: set cor_borda 153/255, 51/255, 1, 1
+
 <BoxMain>
     button_refresh: button_refresh
-    button_bottomtop: button_bottomtop
+    # button_bottomtop: button_bottomtop
     checkbox_auto: checkbox_auto
     scrollview_streams: scrollview_streams
     grid_streams: grid_streams
     orientation: 'vertical'
-    padding: 5, 5, 5, 5
-    MDBoxLayout:
-        orientation: 'horizontal'
-        adaptive_height: True
-        spacing: 10
-        Widget:
-        MDIconButton:
-            icon: "logout"
-            on_release: app.root.logout()
-        MDIconButton:
-            id: button_refresh
-            icon: "refresh"
-            on_release: app.root.refresh_streams_on()
-        MDBoxLayout:
-            orientation: 'horizontal'
-            adaptive_width: True
-            spacing: 20
-            MDLabel:
-                text: 'Auto: '
-                font_size: 18
-                theme_text_color: "Primary"
-                adaptive_width: True
-                size: self.texture_size
-            CheckBox:
-                id: checkbox_auto
-                adaptive_width: True
-                active: True
-        MDIconButton:
-            id: button_bottomtop
-            icon: "arrow-up-down-bold-outline"
-        MDIconButton:
-            icon: "theme-light-dark"
-            on_release: app.toggle_theme()
+    md_bg_color: self.theme_cls.backgroundColor
 
+    MDTopAppBar:
+        type: "small"
+        md_bg_color: self.theme_cls.surfaceContainerLowColor
+
+        MDTopAppBarLeadingButtonContainer:
+            MDActionTopAppBarButton:
+                icon: "refresh"
+                id: button_refresh
+                on_release: root.refresh_streams_on()
+
+        MDTopAppBarTrailingButtonContainer:
+            MDBoxLayout:
+                orientation: "horizontal"
+                adaptive_width: True
+                spacing: "4dp"
+                MDLabel:
+                    text: "Auto"
+                    adaptive_width: True
+                    theme_text_color: "Secondary"
+                    font_style: "Label"
+                    role: "small"
+                MDCheckbox:
+                    id: checkbox_auto
+                    active: True
+                    size_hint: None, None
+                    size: "32dp", "32dp"
+                    pos_hint: {"center_y": .5}
+            
+            MDActionTopAppBarButton:
+                id: button_bottomtop
+                icon: "arrow-up-down-bold-outline"
+                on_release: root.bottomtop()
+
+            MDActionTopAppBarButton:
+                icon: "theme-light-dark"
+                on_release: app.toggle_theme()
+
+            MDActionTopAppBarButton:
+                icon: "logout"
+                on_release: app.root.logout()
 
     ScrollView:
         id: scrollview_streams
         scroll_wheel_distance: 200
         always_overscroll: False
-        # scroll_type: ['bars', 'content']
 
         MDBoxLayout:
             orientation: 'vertical'
             adaptive_height: True
-            spacing: 20
-            padding: 0, 20
+            padding: 0, "10dp"
+            
             MDGridLayout:
                 id: grid_streams
-                orientation: "lr-tb"
-                size_hint_y: None
-                height: self.minimum_height
-                spacing: 15
-                padding: 10, 10, 10, 10
                 cols: 3
-            MDIconButton:
-                icon: "plus"
+                adaptive_height: True
+                spacing: "12dp"
+                padding: "12dp"
+            
+            MDButton:
                 style: "filled"
                 pos_hint: {"center_x": .5}
                 on_release: root.add_more_streams()
+                MDButtonText:
+                    text: "Ver mais"

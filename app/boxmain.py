@@ -63,17 +63,35 @@ class BoxMain(MDBoxLayout):
         self.popup = PopUpProgress()
         self._keyboard = Window.request_keyboard(self._keyboard_closed, self, "text")
         if self._keyboard.widget:
-            # If it exists, this widget is a VKeyboard object which you can use
-            # to change the keyboard layout.
             pass
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
-        self.button_bottomtop.bind(on_press=self.bottomtop)
-        # self.scrollview_streams.bind(on_scroll_stop=self.add_more_streams)
-        # self.scrollview_streams.bind(on_scroll_start=lambda *args: pprint(args[1]))
+        
+        # Garante que a atualização ocorra após a montagem do layout
+        self.bind(width=self.update_grid_cols)
+        Clock.schedule_once(lambda dt: self.update_grid_cols(self, self.width))
+        
         if self.mod != "test" and (not self.client_id or not self.oauth_token):
             self.dialog_authenticate()
         else:
             self.refresh_streams_on()
+
+    def update_grid_cols(self, instance, width):
+        from kivy.metrics import dp
+        logging.debug(f"Redimensionando: largura={width}")
+        if not self.grid_streams:
+            return
+            
+        # Define uma largura ideal para cada card (ex: 350dp)
+        target_column_width = dp(350)
+        
+        # Calcula quantas colunas cabem, limitando entre 1 e 5
+        new_cols = max(1, min(5, int(width / target_column_width)))
+            
+        if self.grid_streams.cols != new_cols:
+            logging.info(f"Alterando grid para {new_cols} colunas (largura: {width}px, alvo: {target_column_width}px)")
+            self.grid_streams.cols = new_cols
+            logging.info(f"Alterando grid para {new_cols} colunas (largura: {width}px)")
+            self.grid_streams.cols = new_cols
 
     def _keyboard_closed(self):
         self._keyboard.unbind(on_key_down=self._on_keyboard_down)
@@ -234,9 +252,14 @@ class BoxMain(MDBoxLayout):
         logging.info("Lista de streams atualizada.")
         self.popup.dismiss()
         self.grid_streams.clear_widgets()
-        logging.debug(f"Adicionando os primeiros 30 streams à grade. Total de streams: {len(self.list_streams_on)}")
-        for stream in self.list_streams_on[:30]:
-            self.grid_streams.add_widget(BoxStream(channel_data=stream))
+        logging.debug(f"Agendando carregamento escalonado de {min(len(self.list_streams_on), 30)} streams.")
+        
+        # Carrega os widgets com um pequeno delay entre eles para não travar a rede/CPU
+        for i, stream in enumerate(self.list_streams_on[:30]):
+            Clock.schedule_once(
+                lambda dt, s=stream: self.grid_streams.add_widget(BoxStream(channel_data=s)),
+                i * 0.05
+            )
 
     def play(self, go: str, qlt="best"):
         # self.popup.open()
