@@ -4,6 +4,10 @@ from kivy.config import Config
 Config.set("graphics", "window_state", "maximized")
 Config.set("graphics", "minimum_width", 800)
 Config.set("graphics", "minimum_height", 384)
+# Aumenta o pool de threads para carregamento de imagens (padrão é 2)
+Config.set("network", "useragent", "Mozilla/5.0")
+from kivy.loader import Loader
+Loader.num_workers = 8
 
 from kivymd.app import MDApp  # noqa: E402
 from app.boxmain import BoxMain  # noqa: E402
