@@ -1,9 +1,10 @@
 import logging
 from kivy.clock import Clock
-from kivymd.uix.dialog import MDDialog
-from kivymd.uix.progressindicator import MDCircularProgressIndicator
 from psutil import process_iter
-from kivymd import images_path
+
+from kivymd.uix.dialog import MDDialog, MDDialogContentContainer
+from kivymd.uix.progressindicator import MDCircularProgressIndicator
+from kivymd.uix.boxlayout import MDBoxLayout
 
 # Configuração básica do logger
 logging.basicConfig(
@@ -16,22 +17,35 @@ class PopUpProgress(MDDialog):
     def __init__(self, chk_vlc=False, **kwargs):
         super().__init__(**kwargs)
         self.chk_vlc = chk_vlc
-        self.background = f'{images_path}/transparent.png'
-        self.size_hint = (None, None)
-        self.size = (300, 300)
-        self.separator_height = 0
         self.auto_dismiss = False
+        
+        # Tenta definir transparência após o super().__init__
+        self.theme_bg_color = "Custom"
+        self.md_bg_color = [0, 0, 0, 0]
+        self.shadow_color = [0, 0, 0, 0]
 
         logging.info("Inicializando PopUpProgress.")
         proc = [x.info["name"].replace(".exe", "") for x in process_iter(["name"])]
         self.vlcs = proc.count("vlc")
-        # logging.debug(f"Processos encontrados: {proc}")
         logging.debug(f"Contagem inicial de VLC: {self.vlcs}")
 
-        self.add_widget(MDCircularProgressIndicator(
-            size_hint=(None, None),
-            size=self.size
-        ))
+        content = MDBoxLayout(
+            MDCircularProgressIndicator(
+                size_hint=(None, None),
+                size=("48dp", "48dp"),
+                pos_hint={"center_x": .5, "center_y": .5}
+            ),
+            orientation="vertical",
+            adaptive_height=True,
+            padding="24dp"
+        )
+        content.theme_bg_color = "Custom"
+        content.md_bg_color = [0, 0, 0, 0]
+
+        container = MDDialogContentContainer()
+        container.add_widget(content)
+
+        self.add_widget(container)
 
     def on_open(self):
         logging.info("PopUpProgress aberto.")
