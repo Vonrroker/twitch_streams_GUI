@@ -24,11 +24,12 @@
         MDBoxLayout:
             orientation: 'horizontal'
             adaptive_width: True
+            spacing: 20
             MDLabel:
                 text: 'Auto: '
                 font_size: 18
                 theme_text_color: "Primary"
-                # adaptive_width: True
+                adaptive_width: True
                 size: self.texture_size
             CheckBox:
                 id: checkbox_auto
@@ -52,6 +53,7 @@
             orientation: 'vertical'
             adaptive_height: True
             spacing: 20
+            padding: 0, 20
             MDGridLayout:
                 id: grid_streams
                 orientation: "lr-tb"

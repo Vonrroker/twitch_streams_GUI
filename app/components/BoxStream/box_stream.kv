@@ -12,9 +12,11 @@
             MDLabel:
                 id: label_channel_infos
                 markup: True
-                height: 30
+                adaptive_height: True
                 pos: self.parent.center_x-self.width/2, self.parent.height - self.height - 8
-                font_size: 18
+                # font_size: "80sp"
+                font_style: "Headline"
+                role: "small"
                 bold: True
                 theme_text_color: "Custom"
                 text_color: 1, 1, 1
@@ -27,7 +29,7 @@
                 id: label_status
                 text: ''
                 pos: self.parent.center_x-self.width/2, self.parent.height -self.height - (2*self.parent.children[1].height)
-                font_size: 18
+                font_size: "20sp"
                 bold: True
                 text_size: self.parent.width * 5/6, None
                 size: self.texture_size
