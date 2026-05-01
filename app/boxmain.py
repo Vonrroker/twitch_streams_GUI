@@ -27,11 +27,13 @@ from app.components.PopUpAuth.pop_up_auth import Content, PopUpAuth
 from kivymd.uix.textfield import MDTextField
 from streamlink import Streamlink
 
+import uvicorn
+from app.auth_server.server import app as auth_app, run_server
 from app.config import envs, set_token
 from tests.fakes.list_streams import fake_list_streams
 from app.utils.parser_streams import parser
 
-base_auth_url = "https://localhost:5000"
+base_auth_url = "http://localhost:5000"
 user_info_url = "https://id.twitch.tv/oauth2/userinfo"
 
 # Configuração básica do logger
@@ -114,6 +116,37 @@ class BoxMain(MDBoxLayout):
         logging.info("Abrindo diálogo de autenticação.")
         self.dialog_auth = PopUpAuth(authenticate=self.authenticate, base_auth_url=base_auth_url)
         self.dialog_auth.open()
+        
+        # Iniciar servidor de autenticação em background
+        Thread(target=self.run_auth_server, daemon=True).start()
+        
+        # Iniciar monitoramento do token no .env
+        Clock.schedule_interval(self.check_for_token, 1)
+
+    def run_auth_server(self):
+        logging.info("Iniciando servidor FastAPI de autenticação...")
+        run_server() # Usa a função que gerencia o loop e o shutdown interno
+
+    def check_for_token(self, dt):
+        # Recarregar .env e verificar se o token foi salvo pelo servidor FastAPI
+        from dotenv import load_dotenv
+        load_dotenv(envs["app_path"] + "/.env", override=True)
+        
+        new_token = environ.get("OAUTH_TOKEN")
+        if new_token and new_token != self.oauth_token:
+            logging.info("Novo token detectado no .env!")
+            self.oauth_token = new_token
+            self.refresh_token = environ.get("REFRESH_TOKEN")
+            self.user_id = environ.get("USER_ID")
+            
+            self.dialog_auth.dismiss()
+            self.refresh_streams_on()
+            
+            # Encerrar o servidor de autenticação
+            UrlRequest(f"{base_auth_url}/shutdown")
+            
+            return False # Para o Clock.schedule_interval
+        return True
 
     def authenticate(self, instance, *args):
         logging.info("Iniciando autenticação.")

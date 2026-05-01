@@ -11,6 +11,9 @@ dependencies = [
     "psutil>=6.1.0",
     "python-dotenv>=1.0.1",
     "streamlink>=8.0.0",
+    "fastapi",
+    "uvicorn[standard]",
+    "httpx",
 ]
 
 [tool.uv.sources]

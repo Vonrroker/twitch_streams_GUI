@@ -34,12 +34,7 @@ class PopUpAuth(MDDialog):
         self.add_widget(
             MDDialogButtonContainer(
                 MDButton(
-                    MDButtonText(text="Fazer autenticação"),
-                    style="text",
-                    on_release=self.aut,
-                ),
-                MDButton(
-                    MDButtonText(text="Abrir Url"),
+                    MDButtonText(text="Abrir Link no Navegador"),
                     style="text",
                     on_release=lambda arg: webbrowser.open(
                         f"{base_auth_url}/auth/twitch"
