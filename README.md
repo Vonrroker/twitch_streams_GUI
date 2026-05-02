@@ -1,20 +1,22 @@
-# Twitch Streams GUI
+# Twitch Streams GUI & TUI
 
-A desktop application developed in Python with a [KivyMD](https://github.com/kivymd/KivyMD) interface that allows you to view and watch live Twitch streams you follow, utilizing [VLC](https://www.videolan.org/vlc/) as the player.
+A multi-interface desktop application developed in Python that allows you to view and watch live Twitch streams you follow, utilizing [VLC](https://www.videolan.org/vlc/) as the player via [Streamlink](https://streamlink.github.io/).
 
 ## 🚀 Features
 
+- **Dual Interfaces:**
+  - **GUI Mode:** Modern Material Design interface built with [KivyMD](https://github.com/kivymd/KivyMD).
+  - **TUI Mode:** Terminal User Interface for power users, built with [Textual](https://textual.textualize.io/).
 - **Automated Authentication:** Integrated local FastAPI server for a seamless OAuth2 login flow.
-- **Stream Overview:** View all followed live streams with thumbnails and viewer counts.
-- **VLC Integration:** Watch streams directly in VLC via Streamlink.
-- **Resolution Selection:** Choose your preferred stream quality or use "best" by default.
-- **Material Design:** Clean and modern interface built with KivyMD.
+- **Stream Overview:** View all followed live streams with channel names, games, viewer counts, and status titles.
+- **VLC Integration:** Watch streams directly in VLC with high performance and low overhead.
+- **Flexible Quality:** Choose specific stream resolutions or toggle "Auto-Best" to launch instantly in the highest quality.
 
 ## 🛠️ Requirements
 
 - **Python:** >= 3.12
 - **VLC Media Player:** Must be installed and available in your system's PATH.
-- **Twitch Developer Credentials:** You'll need a Client ID and Secret from the [Twitch Dev Console](https://dev.twitch.tv/console).
+- **Twitch Developer Credentials:** A Client ID and Secret from the [Twitch Dev Console](https://dev.twitch.tv/console).
 
 ## 📥 Installation
 
@@ -23,10 +25,29 @@ Using [uv](https://github.com/astral-sh/uv) (recommended):
 uv sync
 ```
 
-Alternatively, using Poetry:
+Alternatively, using pip:
 ```bash
-poetry install
+pip install -r requirements.txt  # Or use uv sync
 ```
+
+## 🏁 How to Run
+
+### GUI Mode (Default)
+```bash
+python main.py
+```
+
+### TUI Mode (Terminal)
+```bash
+python main.py --tui
+```
+
+#### TUI Keybindings:
+- `q`: Quit.
+- `r`: Refresh stream list.
+- `b`: Toggle "Auto-Best" resolution.
+- `Enter`: Play selected stream.
+- `Esc`: Cancel resolution selection.
 
 ## ⚙️ Configuration
 
@@ -40,24 +61,12 @@ CALLBACK_URL=http://localhost:5000/auth/twitch/callback
 
 *Note: In the Twitch Dev Console, ensure your Redirect URI is set to `http://localhost:5000/auth/twitch/callback`.*
 
-## 🏁 How to Run
+## 🔐 Authentication Flow
 
-```bash
-# If using uv
-uv run main.py
-
-# If using poetry
-poetry shell
-python main.py
-```
-
-## 🔐 How the Authentication Works
-
-1. When you first open the app (or log out), an authentication dialog will appear.
-2. Click **"Abrir Link no Navegador"**.
-3. Log in to your Twitch account and authorize the application.
-4. The local server will automatically capture the tokens and save them to your `.env` file.
-5. The application will refresh, the dialog will close, and your streams will appear.
+1. On first run, the app will prompt for authentication.
+2. It launches a local server and opens your browser to Twitch.
+3. Once authorized, tokens are automatically saved to `app/.env`.
+4. The app refreshes and displays your followed live streams.
 
 ## 📄 License
 
