@@ -145,3 +145,4 @@ credencial.py
 .vscode
 teste.*
 poetry.lock
+GEMINI.md
