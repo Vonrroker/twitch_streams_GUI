@@ -88,7 +88,7 @@ class TwitchTUI(App):
     BINDINGS = [
         Binding("q", "quit", "Quit"),
         Binding("r", "refresh", "Refresh"),
-        Binding("enter", "select_stream", "Play"),
+        Binding("enter", "select_stream", "Play", show=True),
         Binding("b", "toggle_best", "Auto-Best"),
     ]
     
