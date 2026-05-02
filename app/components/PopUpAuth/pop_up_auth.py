@@ -13,14 +13,14 @@ class PopUpAuth(MDDialog):
     def __init__(self, authenticate, base_auth_url, **kwargs):
         super().__init__(**kwargs)
         # self.ids.title.color = self.theme_cls.primary_color
-        # self.title = "Entre no link para fazer a autenticação."
+        # self.title = "Open the link to authenticate."
         # self.type = "custom"
         # self.theme_text_color = "Primary"
         self.auto_dismiss = False
         self.aut = authenticate
         self.add_widget(
             MDDialogHeadlineText(
-                text="Entre no link para fazer a autenticação.",
+                text="Open the link to authenticate.",
                 halign="left",
             ),
         )
@@ -34,7 +34,7 @@ class PopUpAuth(MDDialog):
         self.add_widget(
             MDDialogButtonContainer(
                 MDButton(
-                    MDButtonText(text="Abrir Link no Navegador"),
+                    MDButtonText(text="Open link in browser"),
                     style="text",
                     on_release=lambda arg: webbrowser.open(
                         f"{base_auth_url}/auth/twitch"

@@ -36,7 +36,7 @@ from app.utils.parser_streams import parser
 base_auth_url = "http://localhost:5000"
 user_info_url = "https://id.twitch.tv/oauth2/userinfo"
 
-# Configuração básica do logger
+# Basic logger configuration
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -66,7 +66,7 @@ class BoxMain(MDBoxLayout):
             pass
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
         
-        # Garante que a atualização ocorra após a montagem do layout
+        # Ensure updates occur after the layout is built
         self.bind(width=self.update_grid_cols)
         Clock.schedule_once(lambda dt: self.update_grid_cols(self, self.width))
         
@@ -77,20 +77,20 @@ class BoxMain(MDBoxLayout):
 
     def update_grid_cols(self, instance, width):
         from kivy.metrics import dp
-        logging.debug(f"Redimensionando: largura={width}")
+        logging.debug(f"Resizing: width={width}")
         if not self.grid_streams:
             return
             
-        # Define uma largura ideal para cada card (ex: 350dp)
+        # Define an ideal width for each card (e.g. 350dp)
         target_column_width = dp(350)
         
-        # Calcula quantas colunas cabem, limitando entre 1 e 5
+        # Calculate how many columns fit, clamping between 1 and 5
         new_cols = max(1, min(5, int(width / target_column_width)))
             
         if self.grid_streams.cols != new_cols:
-            logging.info(f"Alterando grid para {new_cols} colunas (largura: {width}px, alvo: {target_column_width}px)")
+            logging.info(f"Changing grid to {new_cols} columns (width: {width}px, target: {target_column_width}px)")
             self.grid_streams.cols = new_cols
-            logging.info(f"Alterando grid para {new_cols} colunas (largura: {width}px)")
+            logging.info(f"Changing grid to {new_cols} columns (width: {width}px)")
             self.grid_streams.cols = new_cols
 
     def _keyboard_closed(self):
@@ -108,8 +108,8 @@ class BoxMain(MDBoxLayout):
         return True
 
     def logout(self, *args):
-        logging.info("Iniciando logout...")
-        logging.debug(f"Argumentos recebidos no logout: {args}")
+        logging.info("Starting logout...")
+        logging.debug(f"Logout args received: {args}")
         set_token(
             access_token="",
             refresh_token="",
@@ -117,13 +117,13 @@ class BoxMain(MDBoxLayout):
         )
         self.list_streams_on.clear()
         self.grid_streams.clear_widgets()
-        logging.info("Usuário deslogado com sucesso. Abrindo diálogo de autenticação.")
+        logging.info("User logged out successfully. Opening authentication dialog.")
         self.dialog_authenticate()
 
     def add_more_streams(self, *args):
         grid_size = len(self.grid_streams.children)
         if grid_size < len(self.list_streams_on):
-            logging.info("Adicionando mais streams à grade.")
+            logging.info("Adding more streams to the grid.")
             for stream in self.list_streams_on[grid_size : grid_size + 9]:
                 self.grid_streams.add_widget(BoxStream(channel_data=stream))
                 
@@ -131,28 +131,28 @@ class BoxMain(MDBoxLayout):
 
     @mainthread
     def dialog_authenticate(self):
-        logging.info("Abrindo diálogo de autenticação.")
+        logging.info("Opening authentication dialog.")
         self.dialog_auth = PopUpAuth(authenticate=self.authenticate, base_auth_url=base_auth_url)
         self.dialog_auth.open()
         
-        # Iniciar servidor de autenticação em background
+        # Start the authentication server in the background
         Thread(target=self.run_auth_server, daemon=True).start()
         
-        # Iniciar monitoramento do token no .env
+        # Start monitoring the token in the .env file
         Clock.schedule_interval(self.check_for_token, 1)
 
     def run_auth_server(self):
-        logging.info("Iniciando servidor FastAPI de autenticação...")
-        run_server() # Usa a função que gerencia o loop e o shutdown interno
+        logging.info("Starting FastAPI authentication server...")
+        run_server() # Uses the function that manages the internal loop and shutdown
 
     def check_for_token(self, dt):
-        # Recarregar .env e verificar se o token foi salvo pelo servidor FastAPI
+        # Reload .env and verify whether the token was saved by the FastAPI server
         from dotenv import load_dotenv
         load_dotenv(envs["app_path"] + "/.env", override=True)
         
         new_token = environ.get("OAUTH_TOKEN")
         if new_token and new_token != self.oauth_token:
-            logging.info("Novo token detectado no .env!")
+            logging.info("New token detected in .env!")
             self.oauth_token = new_token
             self.refresh_token = environ.get("REFRESH_TOKEN")
             self.user_id = environ.get("USER_ID")
@@ -160,28 +160,28 @@ class BoxMain(MDBoxLayout):
             self.dialog_auth.dismiss()
             self.refresh_streams_on()
             
-            # Encerrar o servidor de autenticação
+            # Stop the authentication server
             UrlRequest(f"{base_auth_url}/shutdown")
             
             return False # Para o Clock.schedule_interval
         return True
 
     def authenticate(self, instance, *args):
-        logging.info("Iniciando autenticação.")
-        logging.debug(f"Instância: {instance}, Argumentos: {args}")
+        logging.info("Starting authentication.")
+        logging.debug(f"Instance: {instance}, Arguments: {args}")
         if self.mod == "test":
-            logging.info("Modo de teste ativado. Atualizando streams.")
+            logging.info("Test mode enabled. Refreshing streams.")
             self.refresh_streams_on()
             self.dialog_auth.dismiss()
         elif args and args[0].get("error") == "Unauthorized":
-            logging.warning("Token não autorizado. Tentando atualizar o token.")
+            logging.warning("Token unauthorized. Attempting refresh.")
             UrlRequest(
                 url=f"{base_auth_url}/refresh?refresh_token={self.refresh_token}",
                 on_success=lambda req, result: self.save_token(instance=req, data=result),
-                on_failure=lambda req, result: logging.error("Falha ao atualizar o token.")
+                on_failure=lambda req, result: logging.error("Failed to refresh token.")
             )
         else:
-            logging.info("Salvando novo token.")
+            logging.info("Saving new token.")
             (
                 field_token,
                 field_refresh_token,
@@ -197,15 +197,15 @@ class BoxMain(MDBoxLayout):
             self.dialog_auth.dismiss()
 
     def save_token(self, *, instance=None, data):
-        logging.info("Salvando token.")
-        logging.debug(f"Dados recebidos: {data}")
+        logging.info("Saving token.")
+        logging.debug(f"Received data: {data}")
         if isinstance(data, str):
             response = loads(data)
         else:
             response = data
 
         if "message" in response and response["message"] == "Invalid refresh token":
-            logging.error("Token de atualização inválido. Reabrindo diálogo de autenticação.")
+            logging.error("Invalid refresh token. Reopening authentication dialog.")
             return self.dialog_authenticate()
 
         set_token(
@@ -217,7 +217,7 @@ class BoxMain(MDBoxLayout):
         self.refresh_token = response["refresh_token"]
         self.user_id = response["user_id"]
 
-        logging.info("Token salvo com sucesso. Atualizando streams.")
+        logging.info("Token saved successfully. Refreshing streams.")
         self.refresh_streams_on()
 
     def bottomtop(self, *args):
@@ -229,14 +229,14 @@ class BoxMain(MDBoxLayout):
             self.scrollview_streams.scroll_y = 1
 
     def refresh_streams_on(self):
-        logging.info("Atualizando lista de streams.")
+        logging.info("Updating stream list.")
         self.list_streams_on.clear()
         self.popup.open()
         if self.mod == "test":
-            logging.info("Modo de teste ativado. Usando lista de streams fake.")
+            logging.info("Test mode enabled. Using fake stream list.")
             self.list_streams_on.extend(fake_list_streams)
         elif self.oauth_token:
-            logging.info("Solicitando streams seguidos da API do Twitch.")
+            logging.info("Requesting followed streams from the Twitch API.")
             UrlRequest(
                 url=f"https://api.twitch.tv/helix/streams/followed?type=live&user_id={self.user_id}",
                 req_headers={
@@ -245,16 +245,16 @@ class BoxMain(MDBoxLayout):
                     "Authorization": f"Bearer {self.oauth_token}",
                 },
                 on_success=lambda *response: self.list_streams_on.extend(parser(response)),
-                on_failure=lambda *x: logging.error("Falha ao atualizar streams. Deslogando usuário.") or self.logout(x),
+                on_failure=lambda *x: logging.error("Failed to refresh streams. Logging out user.") or self.logout(x),
             )
 
     def on_list_streams_on(self, instance, value):
-        logging.info("Lista de streams atualizada.")
+        logging.info("Stream list updated.")
         self.popup.dismiss()
         self.grid_streams.clear_widgets()
-        logging.debug(f"Agendando carregamento escalonado de {min(len(self.list_streams_on), 30)} streams.")
+        logging.debug(f"Scheduling staggered loading of {min(len(self.list_streams_on), 30)} streams.")
         
-        # Carrega os widgets com um pequeno delay entre eles para não travar a rede/CPU
+        # Load widgets with a small delay so the network/CPU does not freeze
         for i, stream in enumerate(self.list_streams_on[:30]):
             Clock.schedule_once(
                 lambda dt, s=stream: self.grid_streams.add_widget(BoxStream(channel_data=s)),
@@ -265,10 +265,10 @@ class BoxMain(MDBoxLayout):
         # self.popup.open()
         self.go = go
         if not self.checkbox_auto.active and qlt == "best":
-            logging.info("Buscando resoluções disponíveis.")
+            logging.info("Searching available resolutions.")
             Thread(target=self.search_resolutions, args=(go,)).start()
         else:
-            logging.info(f"Iniciando reprodução do stream: {go} com qualidade: {qlt}")
+            logging.info(f"Starting playback for stream: {go} at quality: {qlt}")
             self.popup.chk_vlc = True
             self.popup.open()
             try:
@@ -276,7 +276,7 @@ class BoxMain(MDBoxLayout):
             except AttributeError:
                 pass
             tmp = f'streamlink http://twitch.tv/{go} {qlt}'
-            logging.debug(f"Comando executado: {tmp}")
+            logging.debug(f"Command executed: {tmp}")
             Popen(tmp, close_fds=True, shell=True)
 
     def search_resolutions(self, go):
@@ -310,7 +310,7 @@ class BoxMain(MDBoxLayout):
 
         self.dialog = MDDialog(
             MDDialogHeadlineText(
-                text="Escolha resolução:",
+                text="Choose resolution:",
                 halign="left",
             ),
             MDDialogContentContainer(

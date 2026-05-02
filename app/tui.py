@@ -230,7 +230,7 @@ class TwitchTUI(App):
 
     def run_streamlink(self, channel: str, resolution: str):
         cmd = f"streamlink http://twitch.tv/{channel} {resolution}"
-        # Redireciona stdout e stderr para o vazio para não sujar o terminal ao fechar o VLC
+        # Redirect stdout and stderr to null so the terminal stays clean when VLC closes
         subprocess.Popen(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         self.notify(f"Launching {channel} at {resolution} in VLC...")
 
