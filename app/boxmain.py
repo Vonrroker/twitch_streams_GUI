@@ -53,6 +53,7 @@ class BoxMain(MDBoxLayout):
         super().__init__(**kwargs)
         self.mod = mod
         self.popup = PopUpProgress()
+        self.dialog = None
         self._keyboard = Window.request_keyboard(self._keyboard_closed, self, "text")
         if self._keyboard.widget:
             pass
