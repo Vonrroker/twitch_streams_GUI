@@ -27,27 +27,30 @@ class PopUpProgress(MDDialog):
         self.vlcs = proc.count("vlc")
         Logger.debug(f"Initial VLC count: {self.vlcs}")
 
+        self.vlc_label_container = MDBoxLayout(
+            MDLabel(
+                text="Waiting for VLC to open...",
+                halign="center",
+                theme_text_color="Custom",
+                text_color=[1, 1, 1, 1], # White text for visibility
+                adaptive_height=True,
+                padding=("0dp", "8dp")
+            ),
+            theme_bg_color="Custom",
+            md_bg_color=[0, 0, 0, 0.7], # Semi-transparent black background
+            adaptive_height=True,
+            radius=[12, 12, 12, 12], # Rounded corners for polish
+            padding="8dp",
+            opacity=1 if self.chk_vlc else 0 # Hide if not checking for VLC
+        )
+
         content = MDBoxLayout(
             MDCircularProgressIndicator(
                 size_hint=(None, None),
                 size=("48dp", "48dp"),
                 pos_hint={"center_x": .5, "center_y": .5}
             ),
-            MDBoxLayout(
-                MDLabel(
-                    text="Waiting for VLC to open...",
-                    halign="center",
-                    theme_text_color="Custom",
-                    text_color=[1, 1, 1, 1], # White text for visibility
-                    adaptive_height=True,
-                    padding=("0dp", "8dp")
-                ),
-                theme_bg_color="Custom",
-                md_bg_color=[0, 0, 0, 0.7], # Semi-transparent black background
-                adaptive_height=True,
-                radius=[12, 12, 12, 12], # Rounded corners for polish
-                padding="8dp"
-            ),
+            self.vlc_label_container,
             orientation="vertical",
             adaptive_height=True,
             padding="24dp",
@@ -65,6 +68,7 @@ class PopUpProgress(MDDialog):
         Logger.info("PopUpProgress opened.")
         self.start_time = time.time()
         self.logged_check = False
+        self.vlc_label_container.opacity = 1 if self.chk_vlc else 0
         if self.chk_vlc:
             Logger.info("VLC monitoring enabled.")
             Clock.schedule_interval(self.next, 0.5)

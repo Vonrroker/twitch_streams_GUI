@@ -271,6 +271,7 @@ class BoxMain(MDBoxLayout):
             Popen(tmp, close_fds=True, shell=True)
 
     def search_resolutions(self, go):
+        self.popup.open()
         streamlink = Streamlink()
         streams = streamlink.streams(f"https://www.twitch.tv/{go}")
         list_resolution = list(streams)
