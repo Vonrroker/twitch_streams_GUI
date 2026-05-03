@@ -2,17 +2,27 @@
     orientation: "vertical"
     size_hint_y: None
     height: self.width * 9/16 + dp(72)
-    style: "filled"
+    style: "elevated"
     theme_bg_color: "Custom"
     md_bg_color: self.theme_cls.surfaceContainerLowColor
     radius: "12dp"
     ripple_behavior: False
     on_release: app.root.play(root.stream)
+    theme_shadow_color: "Custom"
+    shadow_color: .392, .255, .647, 1
+    theme_bg_color: "Custom"
+    theme_shadow_offset: "Custom"
+    shadow_offset: (1, -1)
+    theme_shadow_softness: "Custom"
+    shadow_softness: 1
+    theme_elevation_level: "Custom"
+    elevation_level: 2
+
 
     MDRelativeLayout:
         size_hint: 1, None
         height: root.width * 9/16
-        
+
         FitImage:
             source: root.preview_img
             radius: "12dp", "12dp", 0, 0
@@ -41,7 +51,7 @@
             theme_icon_color: "Custom"
             icon_color: 1, 1, 1, .8
             on_release: root.info()
-            
+
         MDLabel:
             id: label_status
             text: ""
