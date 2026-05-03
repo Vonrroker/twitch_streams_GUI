@@ -253,10 +253,11 @@ class BoxMain(MDBoxLayout):
             )
 
     def play(self, go: str, qlt="best"):
-        # self.popup.open()
         self.go = go
         if not self.checkbox_auto.active and qlt == "best":
             Logger.info("Searching available resolutions.")
+            self.popup.chk_vlc = False
+            self.popup.open()
             Thread(target=self.search_resolutions, args=(go,)).start()
         else:
             Logger.info(f"Starting playback for stream: {go} at quality: {qlt}")
@@ -271,7 +272,6 @@ class BoxMain(MDBoxLayout):
             Popen(tmp, close_fds=True, shell=True)
 
     def search_resolutions(self, go):
-        self.popup.open()
         streamlink = Streamlink()
         streams = streamlink.streams(f"https://www.twitch.tv/{go}")
         list_resolution = list(streams)
