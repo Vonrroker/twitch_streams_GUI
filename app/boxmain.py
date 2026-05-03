@@ -26,6 +26,9 @@ from streamlink import Streamlink
 
 from app.auth_server.server import run_server
 from app.components.BoxStream.box_stream import BoxStream
+from app.components.DialogSelectResolution.dialog_sselect_resolution import (
+    DialogSelectResolution,
+)
 from app.components.PopUpAuth.pop_up_auth import PopUpAuth
 from app.components.PopUpProgress.pop_up_progress import PopUpProgress
 from app.config import envs, set_token
@@ -284,57 +287,17 @@ class BoxMain(MDBoxLayout):
     @mainthread
     def dialog_select_resolution(self, list_r):
         self.popup.dismiss()
-
-        self.list_item_confirm = [
-            MDListItem(
-                MDListItemHeadlineText(
-                        text=item,
-                    ),
-                MDListItemTrailingCheckbox(
-                    group="group"
-                ),
-                theme_bg_color="Custom",
-                md_bg_color=self.theme_cls.transparentColor
-            )
-
-            for item in list_r
-        ]
-
-        self.dialog = MDDialog(
-            MDDialogHeadlineText(
-                text="Choose resolution:",
-                halign="left",
-            ),
-            MDDialogContentContainer(
-                *self.list_item_confirm,
-                orientation="vertical",
-            ),
-            MDDialogButtonContainer(
-                Widget(),
-                MDButton(
-                    MDButtonText(text="Play"),
-                    style="text",
-                    on_release=self.play_with_resolution,
-                ),
-                MDButton(
-                    MDButtonText(text="Cancel"),
-                    style="text",
-                ),
-                spacing="8dp",
-            ),
+        self.dialog = DialogSelectResolution(
+            list_r=list_r,
+            play_callback=self.play_with_resolution
         )
-
         self.dialog.open()
-        # breakpoint()
 
-    def play_with_resolution(self, instance):
-        for item in self.list_item_confirm:
-            if item.children[0].children[0].active:
-                self.popup.chk_vlc = True
-                self.popup.open()
-                self.play(go=self.go, qlt=item.children[1].children[0].children[0].text)
-                self.dialog.dismiss()
-                break
+    def play_with_resolution(self, resolution):
+        self.popup.chk_vlc = True
+        self.popup.open()
+        self.play(go=self.go, qlt=resolution)
+        self.dialog.dismiss()
 
     def close_dialog(self, instance):
         self.dialog.dismiss()

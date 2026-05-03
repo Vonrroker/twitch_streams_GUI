@@ -443,44 +443,26 @@ class TestStreamPlayback:
             mock_streamlink.streams.assert_called_once_with("https://www.twitch.tv/testchannel")
             mock_dialog.assert_called_once_with(list_r=["720p", "1080p"])
 
-    @patch('app.boxmain.MDListItem')
-    @patch('app.boxmain.MDDialog')
-    def test_dialog_select_resolution_creates_dialog(self, mock_dialog, mock_list_item, boxmain_instance, mock_popup):
+    @patch('app.boxmain.DialogSelectResolution')
+    def test_dialog_select_resolution_creates_dialog(self, mock_dialog_class, boxmain_instance, mock_popup):
         """Test resolution selection dialog creation"""
         test_resolutions = ["720p", "1080p"]
 
         boxmain_instance.dialog_select_resolution.__wrapped__(boxmain_instance, test_resolutions)
 
         mock_popup.dismiss.assert_called_once()
-        mock_dialog.assert_called_once()
+        mock_dialog_class.assert_called_once()
 
     def test_play_with_resolution(self, boxmain_instance, mock_popup):
         """Test playing with selected resolution"""
-        mock_item1 = Mock()
-        mock_item1.children = [Mock(), Mock()]
-        mock_item1.children[0].children = [Mock()]
-        mock_item1.children[0].children[0].active = False
-        mock_item1.children[1].children = [Mock()]
-        mock_item1.children[1].children[0].children = [Mock()]
-        mock_item1.children[1].children[0].children[0].text = "720p"
-
-        mock_item2 = Mock()
-        mock_item2.children = [Mock(), Mock()]
-        mock_item2.children[0].children = [Mock()]
-        mock_item2.children[0].children[0].active = True
-        mock_item2.children[1].children = [Mock()]
-        mock_item2.children[1].children[0].children = [Mock()]
-        mock_item2.children[1].children[0].children[0].text = "1080p"
-
-        boxmain_instance.list_item_confirm = [mock_item1, mock_item2]
         boxmain_instance.go = "testchannel"
+        boxmain_instance.dialog = Mock()
 
-        with patch.object(boxmain_instance, 'play') as mock_play, \
-             patch.object(boxmain_instance, 'dialog') as mock_dialog:
-            boxmain_instance.play_with_resolution(None)
+        with patch.object(boxmain_instance, 'play') as mock_play:
+            boxmain_instance.play_with_resolution("1080p")
 
             mock_play.assert_called_once_with(go="testchannel", qlt="1080p")
-            mock_dialog.dismiss.assert_called_once()
+            boxmain_instance.dialog.dismiss.assert_called_once()
 
 
 class TestDialogManagement:

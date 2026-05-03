@@ -142,5 +142,5 @@ def test_dialogselectresolution_sets_title_color_when_ids_available(monkeypatch)
 
     monkeypatch.setattr(dialog_module.MDDialog, "__init__", patched_init)
 
-    dialog = DialogSelectResolution()
+    dialog = DialogSelectResolution(list_r=["720p"], play_callback=lambda x: None)
     assert dialog.ids["title"].color == [1, 1, 1, 1]
