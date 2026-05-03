@@ -83,8 +83,6 @@ class BoxMain(MDBoxLayout):
         if self.grid_streams.cols != new_cols:
             Logger.info(f"Changing grid to {new_cols} columns (width: {width}px, target: {target_column_width}px)")
             self.grid_streams.cols = new_cols
-            Logger.info(f"Changing grid to {new_cols} columns (width: {width}px)")
-            self.grid_streams.cols = new_cols
 
     def _keyboard_closed(self):
         self._keyboard.unbind(on_key_down=self._on_keyboard_down)

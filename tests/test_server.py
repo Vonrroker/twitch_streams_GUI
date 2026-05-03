@@ -81,3 +81,22 @@ async def test_refresh_token():
     
     assert response.status_code == 200
     assert response.json() == {"access_token": "new_access"}
+
+def test_run_server():
+    from app.auth_server.server import run_server, stop_event
+    import threading
+    
+    with patch("uvicorn.Server") as MockServer, \
+         patch("uvicorn.Config"), \
+         patch("threading.Thread") as MockThread:
+        
+        mock_server_instance = MockServer.return_value
+        
+        # We need to make sure stop_event is set so the while loop terminates
+        stop_event.set()
+        
+        run_server()
+        
+        MockServer.assert_called_once()
+        MockThread.assert_called_once()
+        assert mock_server_instance.should_exit is True

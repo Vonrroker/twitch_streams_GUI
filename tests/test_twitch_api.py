@@ -1,5 +1,6 @@
 import pytest
 import respx
+import httpx
 from httpx import Response
 from app.utils.twitch_api import TwitchAPI
 from unittest.mock import patch
@@ -93,3 +94,35 @@ async def test_refresh_access_token_fail(mock_env):
     
     success = await api.refresh_access_token()
     assert success is False
+
+@respx.mock
+@pytest.mark.asyncio
+async def test_get_followed_streams_exception(mock_env):
+    api = TwitchAPI()
+    # Simulate a connection error
+    respx.get("https://api.twitch.tv/helix/streams/followed").mock(side_effect=httpx.ConnectError("Connection failed"))
+    
+    with patch("app.utils.twitch_api.Logger") as mock_logger:
+        streams = await api.get_followed_streams()
+        assert streams is None
+        mock_logger.error.assert_called_once()
+
+@pytest.mark.asyncio
+async def test_refresh_access_token_no_refresh_token():
+    with patch.dict("os.environ", {"REFRESH_TOKEN": ""}, clear=True):
+        api = TwitchAPI()
+        # Explicitly ensure refresh_token is None or empty if it was somehow set
+        api.refresh_token = None
+        success = await api.refresh_access_token()
+        assert success is False
+
+@respx.mock
+@pytest.mark.asyncio
+async def test_refresh_access_token_exception(mock_env):
+    api = TwitchAPI()
+    respx.post("https://id.twitch.tv/oauth2/token").mock(side_effect=httpx.ConnectError("Connection failed"))
+    
+    with patch("app.utils.twitch_api.Logger") as mock_logger:
+        success = await api.refresh_access_token()
+        assert success is False
+        mock_logger.error.assert_called_once()

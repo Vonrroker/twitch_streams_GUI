@@ -50,7 +50,7 @@ filterwarnings = [
 
 [tool.coverage.run]
 source = ["app"]
-omit = ["tests/*", "app/tui.py"]
+omit = ["tests/*"]
 
 [tool.coverage.report]
 show_missing = true

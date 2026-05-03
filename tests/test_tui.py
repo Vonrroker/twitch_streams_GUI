@@ -2,7 +2,7 @@ import asyncio
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
-from textual.widgets import Switch
+from textual.widgets import Switch, DataTable
 
 from app.tui import ResolutionSelect, TwitchTUI
 
@@ -58,9 +58,29 @@ class TestResolutionSelect:
             mock_next.assert_called_once()
 
             # Test up arrow
+            mock_event = Mock()
             mock_event.key = "up"
             screen.on_key(mock_event)
             mock_prev.assert_called_once()
+
+    def test_resolution_select_focus_first_button(self):
+        """Test focus_first_button focuses the first button."""
+        screen = ResolutionSelect(["720p", "1080p"], "testchannel")
+        mock_button = Mock()
+        mock_buttons = Mock()
+        mock_buttons.first.return_value = mock_button
+        
+        with patch.object(screen, "query", return_value=mock_buttons):
+            screen.focus_first_button()
+            mock_buttons.first.assert_called_once()
+            mock_button.focus.assert_called_once()
+
+    def test_resolution_select_on_mount(self):
+        """Test on_mount calls call_after_refresh with focus_first_button."""
+        screen = ResolutionSelect(["720p"], "testchannel")
+        with patch.object(screen, "call_after_refresh") as mock_call:
+            screen.on_mount()
+            mock_call.assert_called_once_with(screen.focus_first_button)
 
 
 class TestTwitchTUI:
@@ -111,15 +131,74 @@ class TestTwitchTUI:
              patch.dict("os.environ", {}, clear=True), \
              patch.object(tui_app, "notify") as mock_notify:
 
-            await tui_app.authenticate()
+            # Mock asyncio.sleep to return instantly, allowing authenticate's own timeout logic to trigger quickly.
+            # This ensures the test doesn't wait for the full timeout duration.
+            mock_sleep = AsyncMock()
+            mock_sleep.return_value = None # Make await asyncio.sleep() return None instantly.
+            
+            with patch("asyncio.sleep", mock_sleep):
+                # Let authenticate run its course. If no token is found and the internal timeout triggers,
+                # it should call notify.
+                await tui_app.authenticate()
 
             # Check for timeout notification
             timeout_calls = [
                 call for call in mock_notify.call_args_list
                 if "timed out" in call[0][0].lower()
             ]
-            assert len(timeout_calls) > 0
+            assert len(timeout_calls) > 0, "Notification for timeout was not found."
 
+    @pytest.mark.asyncio
+    async def test_refresh_streams_no_streams_found(self, tui_app):
+        """Test refresh_streams when no live streams are found."""
+        # Patch TwitchAPI class so that instances created within refresh_streams are controlled
+        with patch("app.tui.TwitchAPI") as MockTwitchAPI, \
+             patch.dict("os.environ", {"OAUTH_TOKEN": "dummy_token"}): # Ensure token is present
+
+            # Configure the mock instance that TwitchAPI() will return
+            mock_api_instance = MockTwitchAPI.return_value
+            mock_api_instance.oauth_token = "dummy_token" # Ensure token is present on the instance
+            mock_api_instance.get_followed_streams = AsyncMock(return_value=[])
+
+            # Mock query_one to avoid ScreenStackError during direct method call
+            mock_datatable = Mock()
+            mock_datatable.clear = Mock() # Mock the clear method too
+            with patch.object(tui_app, "query_one", return_value=mock_datatable) as mock_query_one, \
+                 patch.object(tui_app, "notify") as mock_notify:
+
+                await tui_app.refresh_streams()
+                
+                mock_query_one.assert_called_once_with(DataTable)
+                mock_datatable.clear.assert_called_once()
+                mock_notify.assert_called_once_with("No live streams found or error fetching.", severity="error")
+
+    @pytest.mark.asyncio
+    async def test_refresh_streams_api_error(self, tui_app):
+        """Test refresh_streams when TwitchAPI raises an error."""
+        # Patch TwitchAPI class and os.environ
+        with patch("app.tui.TwitchAPI") as MockTwitchAPI, \
+             patch.dict("os.environ", {"OAUTH_TOKEN": "dummy_token"}):
+
+            mock_api_instance = MockTwitchAPI.return_value
+            mock_api_instance.oauth_token = "dummy_token"
+            mock_api_instance.get_followed_streams = AsyncMock(side_effect=Exception("API Error"))
+
+            # Mock query_one to avoid ScreenStackError during direct method call
+            mock_datatable = Mock()
+            mock_datatable.clear = Mock()
+            with patch.object(tui_app, "query_one", return_value=mock_datatable) as mock_query_one, \
+                 patch.object(tui_app, "notify") as mock_notify:
+
+                await tui_app.refresh_streams()
+
+                mock_query_one.assert_called_once_with(DataTable)
+                mock_datatable.clear.assert_called_once()
+                # Assert that the notification includes the error message
+                mock_notify.assert_called_once() # Check it was called once
+                # Check the content of the notification
+                args, kwargs = mock_notify.call_args
+                assert "Error fetching streams:" in args[0]
+                assert kwargs.get("severity") == "error"
     @pytest.mark.asyncio
     async def test_action_refresh(self, tui_app):
         """Test refresh action calls refresh_streams."""
@@ -200,6 +279,63 @@ class TestTwitchTUI:
 
             mock_streamlink.assert_called_once_with("testchannel", "best")
 
+    @pytest.mark.asyncio
+    async def test_play_stream_manual_resolution(self, tui_app):
+        """Test play_stream with manual resolution selection."""
+        mock_switch = Mock(spec=Switch)
+        mock_switch.value = False
+
+        # Mock streamlink session and streams
+        mock_streams = {"720p": Mock(), "1080p": Mock(), "best": Mock(), "worst": Mock()}
+        
+        with patch.object(tui_app, "query_one", return_value=mock_switch), \
+             patch("app.tui.asyncio.to_thread", new_callable=AsyncMock, return_value=mock_streams), \
+             patch("app.tui.ResolutionSelect") as MockResSelect, \
+             patch.object(tui_app, "push_screen") as mock_push:
+
+            await tui_app.play_stream("testchannel")
+
+            mock_push.assert_called_once()
+            args = mock_push.call_args[0]
+            assert isinstance(args[0], MockResSelect.return_value.__class__)
+            # The second arg is the callback
+            assert callable(args[1])
+
+    @pytest.mark.asyncio
+    async def test_play_stream_no_resolutions(self, tui_app):
+        """Test play_stream when no resolutions are found."""
+        mock_switch = Mock(spec=Switch)
+        mock_switch.value = False
+
+        # Mock streamlink session with only best/worst
+        mock_streams = {"best": Mock(), "worst": Mock()}
+        
+        with patch.object(tui_app, "query_one", return_value=mock_switch), \
+             patch("app.tui.asyncio.to_thread", new_callable=AsyncMock, return_value=mock_streams), \
+             patch.object(tui_app, "run_streamlink") as mock_run, \
+             patch.object(tui_app, "notify") as mock_notify:
+
+            await tui_app.play_stream("testchannel")
+
+            mock_run.assert_called_once_with("testchannel", "best")
+            assert mock_notify.call_count == 2
+            assert "No resolutions found" in mock_notify.call_args_list[1][0][0]
+
+    @pytest.mark.asyncio
+    async def test_play_stream_error(self, tui_app):
+        """Test play_stream when streamlink raises an error."""
+        mock_switch = Mock(spec=Switch)
+        mock_switch.value = False
+
+        with patch.object(tui_app, "query_one", return_value=mock_switch), \
+             patch("app.tui.asyncio.to_thread", new_callable=AsyncMock, side_effect=Exception("Streamlink Error")), \
+             patch.object(tui_app, "notify") as mock_notify:
+
+            await tui_app.play_stream("testchannel")
+
+            assert mock_notify.call_count == 2
+            assert "Error: Streamlink Error" in mock_notify.call_args_list[1][0][0]
+
     def test_run_streamlink(self, tui_app):
         """Test run_streamlink launches subprocess."""
         with patch("app.tui.subprocess.Popen") as mock_popen, \
@@ -226,5 +362,3 @@ class TestTwitchTUI:
             assert call_kwargs["stdout"] == 3
             assert call_kwargs["stderr"] == 3
             assert call_kwargs["shell"] is True
-
-

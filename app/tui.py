@@ -138,18 +138,21 @@ class TwitchTUI(App):
         table = self.query_one(DataTable)
         table.clear()
 
-        streams = await self.api.get_followed_streams()
-        if streams:
-            for stream in streams:
-                table.add_row(
-                    stream["channel_name"],
-                    str(stream["viewers"]),
-                    stream["game"],
-                    stream["channel_status"],
-                    key=stream["channel_name"]
-                )
-        else:
-            self.notify("No live streams found or error fetching.", severity="error")
+        try:
+            streams = await self.api.get_followed_streams()
+            if streams:
+                for stream in streams:
+                    table.add_row(
+                        stream["channel_name"],
+                        str(stream["viewers"]),
+                        stream["game"],
+                        stream["channel_status"],
+                        key=stream["channel_name"]
+                    )
+            else:
+                self.notify("No live streams found or error fetching.", severity="error")
+        except Exception as e: # Catch any exception during API call
+            self.notify(f"Error fetching streams: {e}", severity="error")
 
     async def authenticate(self):
         # Start server in a separate thread/task
