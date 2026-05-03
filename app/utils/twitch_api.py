@@ -1,7 +1,10 @@
-import httpx
-import logging
-from app.config import envs, set_token
 from os import environ
+
+import httpx
+from kivy.logger import Logger
+
+from app.config import envs, set_token
+
 
 class TwitchAPI:
     def __init__(self):
@@ -44,7 +47,7 @@ class TwitchAPI:
                         for x in data
                     ]
             except Exception as e:
-                logging.error(f"Error fetching streams: {e}")
+                Logger.error(f"Error fetching streams: {e}")
         return None
 
     async def refresh_access_token(self):
@@ -71,5 +74,5 @@ class TwitchAPI:
                     set_token(self.oauth_token, self.refresh_token, self.user_id)
                     return True
             except Exception as e:
-                logging.error(f"Error refreshing token: {e}")
+                Logger.error(f"Error refreshing token: {e}")
         return False

@@ -1,6 +1,7 @@
-from kivymd.uix.card import MDCard
-from kivy.properties import ObjectProperty, StringProperty
 from kivy.animation import Animation
+from kivy.properties import ObjectProperty, StringProperty
+from kivymd.uix.card import MDCard
+
 
 class BoxStream(MDCard):
     label_status = ObjectProperty(None)

@@ -1,9 +1,13 @@
-from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.button import MDButton, MDButtonText
-from kivymd.uix.dialog import MDDialog, MDDialogHeadlineText, MDDialogContentContainer, MDDialogButtonContainer
-from kivymd.theming import ThemeManager
 import webbrowser
 
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.button import MDButton, MDButtonText
+from kivymd.uix.dialog import (
+    MDDialog,
+    MDDialogButtonContainer,
+    MDDialogContentContainer,
+    MDDialogHeadlineText,
+)
 
 
 class Content(MDBoxLayout):
@@ -27,7 +31,7 @@ class PopUpAuth(MDDialog):
         self.add_widget(
             MDDialogContentContainer(
                 Content(),
-                
+
                 orientation="vertical"
             ),
         )

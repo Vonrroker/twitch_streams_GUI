@@ -1,23 +1,24 @@
 import asyncio
-import webbrowser
 import subprocess
+import webbrowser
 from os import environ
+
 from dotenv import load_dotenv
-
 from textual.app import App, ComposeResult
-from textual.widgets import Header, Footer, DataTable, Static, Button, Switch, Label
-from textual.screen import ModalScreen
-from textual.containers import Grid, Vertical, Horizontal
 from textual.binding import Binding
+from textual.containers import Horizontal, Vertical
+from textual.screen import ModalScreen
+from textual.widgets import Button, DataTable, Footer, Header, Label, Static, Switch
 
-from app.utils.twitch_api import TwitchAPI
 from app.auth_server.server import run_server
-from app.config import envs, env_path
+from app.config import env_path
+from app.utils.twitch_api import TwitchAPI
+
 
 class ResolutionSelect(ModalScreen[str]):
     """Modal screen to select stream resolution."""
     BINDINGS = [Binding("escape", "dismiss(None)", "Cancel")]
-    
+
     DEFAULT_CSS = """
     ResolutionSelect {
         align: center middle;
@@ -48,7 +49,7 @@ class ResolutionSelect(ModalScreen[str]):
         margin: 0 1;
     }
     """
-    
+
     def __init__(self, resolutions: list[str], channel: str):
         super().__init__()
         self.resolutions = resolutions
@@ -83,14 +84,14 @@ class ResolutionSelect(ModalScreen[str]):
 
 class TwitchTUI(App):
     """Twitch Streams TUI."""
-    
+
     TITLE = "Twitch Streams TUI"
     BINDINGS = [
         Binding("q", "quit", "Quit"),
         Binding("r", "refresh", "Refresh"),
         Binding("b", "toggle_best", "Auto-Best"),
     ]
-    
+
     CSS = """
     DataTable {
         height: 1fr;
@@ -128,7 +129,7 @@ class TwitchTUI(App):
     async def refresh_streams(self) -> None:
         load_dotenv(env_path)
         self.api = TwitchAPI() # Refresh API state from .env
-        
+
         if not self.api.oauth_token:
             self.notify("Authentication required. Opening browser...", severity="warning")
             await self.authenticate()
@@ -136,7 +137,7 @@ class TwitchTUI(App):
 
         table = self.query_one(DataTable)
         table.clear()
-        
+
         streams = await self.api.get_followed_streams()
         if streams:
             for stream in streams:
@@ -154,9 +155,9 @@ class TwitchTUI(App):
         # Start server in a separate thread/task
         asyncio.create_task(asyncio.to_thread(run_server))
         webbrowser.open("http://localhost:5000/auth/twitch")
-        
+
         self.notify("Waiting for authentication...", severity="info")
-        
+
         # Poll for token in .env
         for _ in range(60): # 1 minute timeout
             await asyncio.sleep(2)
@@ -165,7 +166,7 @@ class TwitchTUI(App):
                 self.notify("Authentication successful!", severity="information")
                 await self.refresh_streams()
                 return
-        
+
         self.notify("Authentication timed out.", severity="error")
 
     async def action_refresh(self) -> None:
@@ -192,28 +193,28 @@ class TwitchTUI(App):
         table = self.query_one(DataTable)
         try:
             row = table.get_row(row_key)
-            channel = str(row[0]) 
+            channel = str(row[0])
             await self.play_stream(channel)
         except Exception as e:
             self.notify(f"Error selecting row: {e}", severity="error")
 
     async def play_stream(self, channel: str):
         auto_best = self.query_one("#auto-best", Switch).value
-        
+
         if auto_best:
             self.run_streamlink(channel, "best")
             return
 
         self.notify(f"Fetching resolutions for {channel}...")
-        
+
         # Get resolutions using streamlink
         try:
             from streamlink import Streamlink
             session = Streamlink()
             streams = await asyncio.to_thread(session.streams, f"https://www.twitch.tv/{channel}")
-            
+
             resolutions = [res for res in streams.keys() if res not in ("best", "worst")]
-            
+
             if not resolutions:
                 self.notify("No resolutions found, playing 'best'.", severity="warning")
                 self.run_streamlink(channel, "best")
@@ -224,7 +225,7 @@ class TwitchTUI(App):
                     self.run_streamlink(channel, resolution)
 
             self.push_screen(ResolutionSelect(resolutions, channel), handle_resolution)
-            
+
         except Exception as e:
             self.notify(f"Error: {e}", severity="error")
 

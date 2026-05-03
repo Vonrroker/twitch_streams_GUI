@@ -1,6 +1,10 @@
 from os import environ
 import argparse
 import sys
+import os
+
+# Configure Kivy logger to save logs in .kivy/logs
+os.environ["KIVY_HOME"] = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".kivy")
 
 def run_tui():
     from app.tui import TwitchTUI

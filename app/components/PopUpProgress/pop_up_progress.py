@@ -1,33 +1,26 @@
-import logging
 from kivy.clock import Clock
-from psutil import process_iter
-
+from kivy.logger import Logger
+from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.dialog import MDDialog, MDDialogContentContainer
 from kivymd.uix.progressindicator import MDCircularProgressIndicator
-from kivymd.uix.boxlayout import MDBoxLayout
+from psutil import process_iter
 
-# Basic logger configuration
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler()]
-)
 
 class PopUpProgress(MDDialog):
     def __init__(self, chk_vlc=False, **kwargs):
         super().__init__(**kwargs)
         self.chk_vlc = chk_vlc
         self.auto_dismiss = False
-        
+
         # Try to set transparency after super().__init__
         self.theme_bg_color = "Custom"
         self.md_bg_color = [0, 0, 0, 0]
         self.shadow_color = [0, 0, 0, 0]
 
-        logging.info("Initializing PopUpProgress.")
+        Logger.info("Initializing PopUpProgress.")
         proc = [x.info["name"].replace(".exe", "") for x in process_iter(["name"])]
         self.vlcs = proc.count("vlc")
-        logging.debug(f"Initial VLC count: {self.vlcs}")
+        Logger.debug(f"Initial VLC count: {self.vlcs}")
 
         content = MDBoxLayout(
             MDCircularProgressIndicator(
@@ -48,34 +41,34 @@ class PopUpProgress(MDDialog):
         self.add_widget(container)
 
     def on_open(self):
-        logging.info("PopUpProgress opened.")
+        Logger.info("PopUpProgress opened.")
         if self.chk_vlc:
-            logging.info("VLC monitoring enabled.")
+            Logger.info("VLC monitoring enabled.")
             Clock.schedule_interval(self.next, 0.5)
         else:
-            logging.info("VLC monitoring disabled.")
+            Logger.info("VLC monitoring disabled.")
             Clock.unschedule(self.next)
 
         proc = [x.info["name"].replace(".exe", "") for x in process_iter(["name"])]
         checking = proc.count("vlc")
-        logging.debug(f"VLC count in on_open: {checking}")
+        Logger.debug(f"VLC count in on_open: {checking}")
 
         if checking != self.vlcs:
-            logging.info("VLC count changed. Closing PopUpProgress.")
+            Logger.info("VLC count changed. Closing PopUpProgress.")
             self.dismiss()
             self.chk_vlc = False
             return False
-    
+
 
     def next(self, dt):
-        logging.info("Running periodic process check.")
+        Logger.info("Running periodic process check.")
         proc = [x.info["name"].replace(".exe", "") for x in process_iter(["name"])]
         checking = proc.count("vlc")
-        # logging.debug(f"Process list in next: {proc}")
-        logging.debug(f"VLC count in next: {checking}")
+        # Logger.debug(f"Process list in next: {proc}")
+        Logger.debug(f"VLC count in next: {checking}")
 
         if checking != self.vlcs:
-            logging.info("VLC count changed. Closing PopUpProgress.")
+            Logger.info("VLC count changed. Closing PopUpProgress.")
             self.dismiss()
             self.chk_vlc = False
             return False

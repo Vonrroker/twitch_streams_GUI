@@ -1,6 +1,6 @@
-from os import path, environ
-from dotenv import load_dotenv, set_key
+from os import path
 
+from dotenv import load_dotenv, set_key
 
 project_path = path.realpath
 app_path = path.dirname(__file__)
@@ -27,5 +27,5 @@ def set_token(access_token, refresh_token, user_id):
     set_key(env_path, "OAUTH_TOKEN", access_token)
     set_key(env_path, "REFRESH_TOKEN", refresh_token)
     set_key(env_path, "USER_ID", user_id)
-    
+
     load_dotenv(env_path)
