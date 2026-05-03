@@ -15,22 +15,28 @@ from kivymd.uix.list import (
 
 class DialogSelectResolution(MDDialog):
     def __init__(self, list_r, play_callback, **kwargs):
-        self.list_item_confirm = [
-            MDListItem(
+        self.items_data = []
+        self.list_item_confirm = []
+        
+        for i, item in enumerate(list_r):
+            checkbox = MDListItemTrailingCheckbox(
+                group="group",
+                # Pre-select the first item for convenience
+                active=True if i == 0 else False
+            )
+            
+            list_item = MDListItem(
                 MDListItemHeadlineText(
                     text=item,
                 ),
-                MDListItemTrailingCheckbox(
-                    group="group",
-                    # Pre-select the first item for convenience
-                    active=True if i == 0 else False
-                ),
+                checkbox,
                 theme_bg_color="Custom",
                 md_bg_color=[0, 0, 0, 0],
                 ripple_effect=True,
             )
-            for i, item in enumerate(list_r)
-        ]
+            
+            self.items_data.append({"resolution": item, "checkbox": checkbox})
+            self.list_item_confirm.append(list_item)
 
         super().__init__(
             MDDialogHeadlineText(
@@ -59,11 +65,7 @@ class DialogSelectResolution(MDDialog):
         )
 
     def get_selected_resolution(self):
-        for item in self.list_item_confirm:
-            # MDListItem children[0] is typically the Trailing Container
-            # MDListItemTrailingCheckbox is usually the first child of that container
-            if item.children[0].children[0].active:
-                # MDListItemHeadlineText is item.children[1] or similar depending on internals
-                # Safer way is to access by IDs if they were set, but here we can use the text
-                return item.children[1].children[0].text
+        for data in self.items_data:
+            if data["checkbox"].active:
+                return data["resolution"]
         return "best"
