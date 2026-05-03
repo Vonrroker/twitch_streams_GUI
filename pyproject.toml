@@ -44,6 +44,9 @@ asyncio_mode = "auto"
 testpaths = ["tests"]
 python_files = "test_*.py"
 pythonpath = ["."]
+filterwarnings = [
+    "ignore::DeprecationWarning:kivy.core.image",
+]
 
 [tool.coverage.run]
 source = ["app"]
