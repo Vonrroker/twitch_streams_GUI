@@ -27,7 +27,7 @@ uv sync
 
 Alternatively, using pip:
 ```bash
-pip install -r requirements.txt  # Or use uv sync
+pip install .
 ```
 
 ## 🏁 How to Run
